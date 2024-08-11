@@ -47,8 +47,10 @@ input() # Run until enter is pressed
 
 
 ---
-NOTE
+NOTE about current state, subject to change or improvments
 ---
 * Interface must support monitor mode
 * Any "local" MAC address is supported, does not need to match actual local MAC
-* ESPythoNOW not send ESP-NOW delivery confirmation, so an ESP based device sending messages to ESPythoNOW will not have a confirmed delivery
+* Does not send delivery confirmation, so an ESP based device sending messages to ESPythoNOW will not have a confirmed delivery
+* Does not retry transmission, or detect delivery confirmation
+* Does not support ESP-NOW encryption
