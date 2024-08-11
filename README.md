@@ -24,12 +24,10 @@ def callback(from_mac, to_mac, msg):
 espnow = ESPythoNow(interface="wlp1s0", mac="48:55:19:00:00:55", callback=callback)
 espnow.start()
 
-i=0
 while True:
-  msg=b'\x01\x00'+i.to_bytes(1,"big")
-  espnow.send("FF:FF:FF:FF:FF:FF", msg)
-  i+=1
-  time.sleep(1)
+  msg=b'\x01'
+  espnow.send("48:55:19:00:00:33", msg)
+  time.sleep(3)
 
 
 ```
