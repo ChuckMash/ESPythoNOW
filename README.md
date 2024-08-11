@@ -1,9 +1,9 @@
 # ESPythoNOW
-Python ESP-NOW library
+Linux based Python ESP-NOW library
 
 ---
 
-* Send and receive ESP-NOW messages to and from ESP8266 and ESP32 devices
+* Send and receive ESP-NOW messages to and from a Linux machine and ESP8266/ESP32 devices
 * Monitor all ESP-NOW messages
 * Work In Progress
 
