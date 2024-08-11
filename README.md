@@ -25,7 +25,7 @@ espnow = ESPythoNow(interface="wlp1s0", mac="48:55:19:00:00:55", callback=callba
 espnow.start()
 
 while True:
-  msg=b'0x01'
+  msg=b'\x01'
   espnow.send("48:55:19:00:00:33", msg)
   time.sleep(3)
 
