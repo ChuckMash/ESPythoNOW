@@ -9,6 +9,11 @@ Python ESP-NOW library
 
 ---
 
+Prep the interface and set channel
+```
+sudo bash prep.sh wlp1s0 8
+```
+---
 Send and Recieve ESP-NOW messages
 ```
 from ESPythoNOW import *
@@ -25,7 +30,7 @@ while True:
   time.sleep(3)
 
 ```
-
+---
 Monitor all ESP-NOW Traffic
 ```
 from ESPythoNOW import *
