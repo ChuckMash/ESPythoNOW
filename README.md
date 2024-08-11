@@ -41,6 +41,7 @@ def callback(from_mac, to_mac, msg):
 
 espnow = ESPythoNow(interface="wlp1s0", mac="48:55:19:00:00:55", accept_all=True, callback=callback)
 espnow.start()
+input() # Run until enter is pressed
 ```
 
 
