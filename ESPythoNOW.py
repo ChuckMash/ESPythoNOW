@@ -13,7 +13,7 @@ class ESPythoNow:
 
   def __init__(self, interface, mac, accept_broadcast=True, accept_all=False, callback=None):
     self.interface           = interface
-    self.mac                 = mac
+    self.mac                 = mac.upper()
     self.accept_broadcast    = accept_broadcast
     self.accept_all          = accept_all
     self.esp_now_rx_callback = callback
@@ -67,15 +67,9 @@ class ESPythoNow:
 
   # Send ESP-NOW message to MAC
   def send(self, mac, msg):
-    dot11 = scapy.Dot11FCS(type=0, subtype=13, addr1=mac, addr2=self.mac, addr3=mac);
-    load = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg)).to_bytes(1,'big'), msg)
-    frame = scapy.RadioTap() / dot11 / scapy.Raw(load=load) / scapy.Dot11Elt(ID='Rates', info='\x82\x84\x8b\x96\x0c\x12\x18')
-    scapy.sendp(frame, iface=self.interface, verbose=False)
-
-
-
-  # Send ESP-NOW message confirmation packet. Does not work
-  #def send_ack(self, mac):
-  #  dot11 = scapy.Dot11FCS(type=1, subtype=13, addr1=mac, addr2=self.mac, addr3=mac);
-  #  frame = scapy.RadioTap() / dot11 / scapy.Dot11Elt(ID='Rates', info='\x82\x84\x8b\x96\x0c\x12\x18')
-  #  scapy.sendp(frame, iface=self.interface, verbose=False)
+    scapy.sendp(
+      scapy.RadioTap() /
+      scapy.Dot11FCS(type=0, subtype=13, addr1=mac, addr2=self.mac, addr3="FF:FF:FF:FF:FF:FF") /
+      scapy.Raw(load=b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg)).to_bytes(1,'big'), msg)),
+      iface=self.interface, verbose=False
+    )
