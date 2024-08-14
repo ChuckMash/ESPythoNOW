@@ -19,6 +19,7 @@ class ESPythoNow:
     self.esp_now_rx_callback = callback
     self.recent_rand_values  = collections.deque(maxlen=10)
     self.listener            = None
+    self.l2_socket           = scapy.conf.L2socket(iface=self.interface)
 
   def start(self):
     self.listener = scapy.AsyncSniffer(iface=self.interface, prn=self.parse_rx_packet, filter="type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34 and wlan src ! %s" % self.mac)
@@ -67,9 +68,8 @@ class ESPythoNow:
 
   # Send ESP-NOW message to MAC
   def send(self, mac, msg):
-    scapy.sendp(
+    self.l2_socket.send(
       scapy.RadioTap() /
       scapy.Dot11FCS(type=0, subtype=13, addr1=mac, addr2=self.mac, addr3="FF:FF:FF:FF:FF:FF") /
-      scapy.Raw(load=b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg)).to_bytes(1,'big'), msg)),
-      iface=self.interface, verbose=False
+      scapy.Raw(load=b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg)).to_bytes(1,'big'), msg))
     )
