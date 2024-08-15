@@ -1,7 +1,6 @@
 import scapy.all as scapy
 import collections
 import random
-import time
 
 
 
@@ -21,6 +20,8 @@ class ESPythoNow:
     self.listener            = None
     self.l2_socket           = scapy.conf.L2socket(iface=self.interface)
 
+
+  
   def start(self):
     self.listener = scapy.AsyncSniffer(iface=self.interface, prn=self.parse_rx_packet, filter="type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34 and wlan src ! %s" % self.mac)
     self.listener.start()
