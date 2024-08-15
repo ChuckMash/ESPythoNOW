@@ -8,13 +8,14 @@ Linux based Python ESP-NOW library
 * Work In Progress
 
 ---
-
 Prep the interface and set channel
+---
 ```
 sudo bash prep.sh wlp1s0 8
 ```
 ---
 Send and Recieve ESP-NOW messages
+---
 ```
 from ESPythoNOW import *
 
@@ -32,7 +33,8 @@ while True:
 
 ```
 ---
-Monitor all ESP-NOW Traffic
+Monitor/Sniff all ESP-NOW Traffic
+---
 ```
 from ESPythoNOW import *
 
@@ -44,7 +46,38 @@ espnow.start()
 input() # Run until enter is pressed
 ```
 
+---
+Example Data Structures
+---
 
+ESP Struct
+```
+typedef struct python_message{
+  int a = 0;
+  bool b = false;
+  uint8_t c[10];
+} python_message;
+python_message pm;
+```
+
+Python Send Struct
+```
+import struct
+
+msg = b""
+msg += struct.pack('i', 5)
+msg += struct.pack('?', False)
+msg += struct.pack('11s', b"abcdefghij")
+```
+
+Python Receive Struct
+```
+import struct
+
+def callback(from_mac, to_mac, msg):
+  a, b, c = struct.unpack("i?10s", msg[2:-3])
+  print(a, b, c)
+```
 
 ---
 NOTE about current state, subject to change or improvments
