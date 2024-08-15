@@ -18,6 +18,7 @@ Send and Recieve ESP-NOW messages
 ---
 ```
 from ESPythoNOW import *
+import time
 
 def callback(from_mac, to_mac, msg):
   print("ESP-NOW message from %s to %s: %s" % (from_mac, to_mac, msg))
