@@ -16,7 +16,7 @@ sudo bash prep.sh wlp1s0 8
 ---
 Send and Recieve ESP-NOW messages
 ---
-```
+```python
 from ESPythoNOW import *
 import time
 
@@ -36,7 +36,7 @@ while True:
 ---
 Monitor/Sniff all ESP-NOW Traffic
 ---
-```
+```python
 from ESPythoNOW import *
 
 def callback(from_mac, to_mac, msg):
@@ -52,7 +52,7 @@ Example Data Structures
 ---
 
 ESP Struct
-```
+```c++
 typedef struct python_message{
   int a = 0;
   bool b = false;
@@ -62,7 +62,7 @@ python_message pm;
 ```
 
 Python Send Struct
-```
+```python
 import struct
 
 msg = b""
@@ -72,7 +72,7 @@ msg += struct.pack('11s', b"abcdefghij")
 ```
 
 Python Receive Struct
-```
+```python
 import struct
 
 def callback(from_mac, to_mac, msg):
@@ -85,7 +85,7 @@ Example: Python <-> ESP32 using channel 8 with BROADCAST
 ---
 
 Python
-```
+```python
 # First run: sudo bash prep.sh wlp1s0 8
 # Then replace interface and MAC address in code
 
@@ -113,7 +113,7 @@ while True:
 ```
 
 ESP32
-```
+```c++
 #include <esp_now.h>
 #include <WiFi.h>
 #include "esp_private/wifi.h"
