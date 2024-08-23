@@ -86,7 +86,6 @@ Example: Python <-> ESP32 using channel 8 with BROADCAST
 
 Python
 ```python
-# First run: sudo bash prep.sh wlp1s0 8
 # Then replace interface and MAC address in code
 
 from ESPythoNOW import *
@@ -94,22 +93,21 @@ import struct
 import time
 
 def callback(from_mac, to_mac, msg):
-  a, b, c = struct.unpack("i?11s", msg)
-  print(a, b, c)
+  a, b, c = struct.unpack("<I?11s", msg)
+  print(from_mac, a, b, c)
 
 espnow = ESPythoNow(interface="wlp1s0", mac="DD:DD:DD:DD:DD:DD", callback=callback)
 espnow.start()
 
 while True:
   msg = b""
-  msg += struct.pack('i', 5)
-  msg += struct.pack('?', False)
-  msg += struct.pack('12s', b"Hello World")
+  msg += struct.pack('<I', 5)
+  msg += struct.pack('<?', False)
+  msg += struct.pack('<11s', b"Hello World")
 
   espnow.send("FF:FF:FF:FF:FF:FF", msg)
 
   time.sleep(1)
-
 ```
 
 ESP32
