@@ -53,31 +53,26 @@ Example Data Structures
 
 ESP Struct
 ```c++
-typedef struct python_message{
-  int a = 0;
+typedef struct python_message {
+  int a = 1;
   bool b = false;
-  uint8_t c[10];
+  uint8_t c[11];
 } python_message;
-python_message pm;
 ```
 
 Python Send Struct
 ```python
-import struct
-
 msg = b""
-msg += struct.pack('i', 5)
-msg += struct.pack('?', False)
-msg += struct.pack('11s', b"abcdefghij")
+msg += struct.pack('<I', 5)
+msg += struct.pack('<?', False)
+msg += struct.pack('<11s', b"Hello World")
 ```
 
 Python Receive Struct
 ```python
-import struct
-
 def callback(from_mac, to_mac, msg):
-  a, b, c = struct.unpack("i?10s", msg[2:-3])
-  print(a, b, c)
+  a, b, c = struct.unpack("<I?11s", msg)
+  print(from_mac, a, b, c)
 ```
 
 ---
