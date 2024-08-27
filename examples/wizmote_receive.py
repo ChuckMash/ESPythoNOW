@@ -12,7 +12,7 @@ class wizmote_receive:
     self.callback      = callback
     self.button_lookup = {1:"ON", 2:"OFF", 3:"SLEEP", 16:"1", 17:"2", 18:"3", 19:"4", 8:"-", 9:"+"}
     self.recent        = collections.deque(maxlen=10)
-    self.espnow        = ESPythoNow(interface=interface, mac="DD:DD:DD:DD:DD:DD", callback=self.espnow_callback, accept_all=True)
+    self.espnow        = ESPythoNow(interface=interface, callback=self.espnow_callback, accept_all=True)
     self.espnow.start()
 
 

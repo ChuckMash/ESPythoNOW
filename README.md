@@ -23,7 +23,7 @@ import time
 def callback(from_mac, to_mac, msg):
   print("ESP-NOW message from %s to %s: %s" % (from_mac, to_mac, msg))
 
-espnow = ESPythoNow(interface="wlp1s0", mac="48:55:19:00:00:55", callback=callback)
+espnow = ESPythoNow(interface="wlp1s0", callback=callback)
 espnow.start()
 
 while True:
@@ -42,7 +42,7 @@ from ESPythoNOW import *
 def callback(from_mac, to_mac, msg):
   print("ESP-NOW message from %s to %s: %s" % (from_mac, to_mac, msg))
 
-espnow = ESPythoNow(interface="wlp1s0", mac="48:55:19:00:00:55", accept_all=True, callback=callback)
+espnow = ESPythoNow(interface="wlp1s0", accept_all=True, callback=callback)
 espnow.start()
 input() # Run until enter is pressed
 ```
@@ -96,7 +96,7 @@ def callback(from_mac, to_mac, msg):
   a, b, c = struct.unpack("<I?11s", msg)
   print(from_mac, a, b, c)
 
-espnow = ESPythoNow(interface="wlp1s0", mac="DD:DD:DD:DD:DD:DD", callback=callback)
+espnow = ESPythoNow(interface="wlp1s0", callback=callback)
 espnow.start()
 
 while True:

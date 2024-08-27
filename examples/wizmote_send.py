@@ -10,7 +10,7 @@ class wizmote_sender:
 
   def __init__(self, interface):
     self.button_lookup = {"ON":1, "OFF":2, "SLEEP":3, "1":16, "2":17, "3":18, "4":19, "-":8, "+":9}
-    self.espnow = ESPythoNow(interface=interface, mac="DD:DD:DD:DD:DD:DD")
+    self.espnow = ESPythoNow(interface=interface)
     self.espnow.start()
     self.sequence = 1
 

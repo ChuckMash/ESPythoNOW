@@ -10,7 +10,7 @@ class ESPythoNow:
 
 
 
-  def __init__(self, interface, mac, accept_broadcast=True, accept_all=False, callback=None):
+  def __init__(self, interface, mac="", accept_broadcast=True, accept_all=False, callback=None):
     self.interface           = interface
     self.mac                 = mac.upper()
     self.accept_broadcast    = accept_broadcast
@@ -19,6 +19,10 @@ class ESPythoNow:
     self.recent_rand_values  = collections.deque(maxlen=10)
     self.listener            = None
     self.l2_socket           = scapy.conf.L2socket(iface=self.interface)
+
+    if not self.mac:
+      _, self.mac = scapy.get_if_raw_hwaddr(self.l2_socket.iface)
+      self.mac = ("%02X:" * 6)[:-1] % tuple(scapy.orb(x) for x in self.mac)
 
 
 
@@ -50,7 +54,6 @@ class ESPythoNow:
 
     if not allow:
       return
-
 
     # Get raw ESP-NOW packet
     data = packet["Raw"].load
