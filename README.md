@@ -171,5 +171,5 @@ NOTE about current state, subject to change or improvments
 * Interface must support monitor mode
 * Any "local" MAC address is supported
   * Only actual local MAC will provide delivery confirmation
-* Does not retry transmission, or detect delivery confirmation
+* Does not detect delivery confirmation
 * Does not support ESP-NOW encryption
