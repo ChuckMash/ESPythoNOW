@@ -18,7 +18,11 @@ class wizmote_receive:
 
 
   def espnow_callback(self, from_mac, to_mac, msg):
-    type, sequence, d1, button, d2, battery, ccm = struct.unpack("<BIBBBB4s", msg)
+    try:
+      type, sequence, d1, button, d2, battery, ccm = struct.unpack("<BIBBBB4s", msg)
+    except:
+      #print("Error processing ESP-NOW packet, not WiZmote")
+      return
 
     # Discard duplicate messages
     if from_mac.encode()+ccm in self.recent:
