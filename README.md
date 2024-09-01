@@ -71,7 +71,7 @@ Assorted Details
     * **accept_broadcast** - Accept/Reject ESP-NOW BROADCAST messages. Defaults to **True**.
     * **accept_all** - Accept/Reject ESP-NOW messages no matter the destination MAC. Defaults to **False**.
     * **accept_ack** - If enabled, will execute the callback function when remote peer confirms delivery of sent message. Defaults to **False**.
-    * **block_on_send** - If enabled, will block on send() until remote peer confirms delivery or timeout.
+    * **block_on_send** - If enabled, will block on send() until remote peer confirms delivery or timeout. Defaults to **False**
   * Returns
     * ESPythoNow object.
       
@@ -82,7 +82,7 @@ Assorted Details
     * **mac** - The MAC address of remote ESP-NOW peer.
     * **msg** - The message contents.
       * Also supports list of messages
-    * **block** - If enabled, will block until remote peer confirms delivery or timeout. Overrides global block_on_send. Defaults to **False**.
+    * **block** - If enabled, will block until remote peer confirms delivery or timeout. Overrides global block_on_send. Defaults to **block_on_send**.
   * Returns
     * If not blocking, will always return **True**.
     * If blocking, will return **True** if message(s) have delivery confirmed by remote peer.
