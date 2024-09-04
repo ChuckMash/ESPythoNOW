@@ -26,6 +26,7 @@ class ESPythoNow:
     self.l2_socket           = scapy.conf.L2socket(iface=self.interface) # L2 socket, for reuse
     self.packet              = None                                      # Scapy packet of the most recent received valid ESP-NOW message
     self.local_hw_mac        = self.hw_mac_as_str(self.interface)        # Interface's actual HW MAC
+    self.block_on_broadcast  = False                                     # Enable block on BROADCAST send, disabled by default. Some ESP-NOW versions will send ACK when receiving BROADCAST
 
     # Local MAC is not set, default to interface MAC
     if not self.local_mac:
@@ -165,11 +166,8 @@ class ESPythoNow:
       # Send ESP-NOW packet
       self.l2_socket.send(self.esp_now_send_packet)
 
-      # Wait for delivery confirmation or timeout
-      if block:
-        if self.delivery_event.wait(timeout=self.delivery_timeout):
-          returns.append(True) # Delivery was confirmed by remote peer
-        else:
-          returns.append(False) # Delivery was not confirmed
+      # Wait for delivery confirmation from remote peer or timeout
+      if (block and not self.is_broadcast(mac)) or (block and self.block_on_broadcast and self.is_broadcast(mac)):
+        returns.append(self.delivery_event.wait(timeout=self.delivery_timeout))
 
     return all(returns)
