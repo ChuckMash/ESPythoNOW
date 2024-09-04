@@ -107,7 +107,7 @@ class ESPythoNow:
       self.delivery_confirmed = True
 
       # Execute RX callback for ACK
-      if self.accept_ack:
+      if self.accept_ack and callable(self.esp_now_rx_callback):
         self.esp_now_rx_callback(False, to_mac, "ack")
 
       # Clear delivery confirmation flag
