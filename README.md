@@ -99,5 +99,5 @@ NOTE about current state, subject to change or improvements
 * Interface must support monitor mode
 * Any "local" MAC address is supported
   * Only actual local MAC will provide delivery confirmation
-* Does not support ESP-NOW encryption
+* Does not support ESP-NOW encryption [yet](https://github.com/ChuckMash/ESPythoNOW/issues/1) 
 * This is a work in progress
