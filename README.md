@@ -74,9 +74,11 @@ Assorted Details
     * **block_on_send** - If enabled, will block on send() until remote peer confirms delivery or timeout. Defaults to **False**
   * Returns
     * ESPythoNow object.
-      
+
 * espnow.start() - Begin listening for ESP-NOW messages
-        
+  * Returns
+    * True/False on listener starting
+
 * espnow.send() - Send ESP-NOW messages to remote peer
   * Arguments
     * **mac** - The MAC address of remote ESP-NOW peer.
@@ -98,3 +100,4 @@ NOTE about current state, subject to change or improvements
 * Any "local" MAC address is supported
   * Only actual local MAC will provide delivery confirmation
 * Does not support ESP-NOW encryption
+* This is a work in progress

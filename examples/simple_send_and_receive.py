@@ -4,7 +4,8 @@ import time
 
 def callback(from_mac, to_mac, msg):
   a, b, c = struct.unpack("<I?22s", msg)
-  print(from_mac, a, b, c)
+  rssi = espnow.packet.dBm_AntSignal
+  print("%s (%s) %s %s %s" % (from_mac, rssi, a, b, c))
 
 espnow = ESPythoNow(interface="wlp1s0", callback=callback)
 espnow.start()

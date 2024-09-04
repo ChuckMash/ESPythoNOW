@@ -20,15 +20,19 @@ class ESPythoNow:
     self.delivery_confirmed  = False                                     # Have received a delivery confirmation since the last send
     self.delivery_event      = scapy.threading.Event()                   # Used with block on send
     self.delivery_timeout    = .025                                      # How long to wait for delivery confirmation when blocking
-    self.startup_delay       = 0.1                                       # Wait after starting packet listener
+    self.startup_event       = scapy.threading.Event()                   # Used with starting Scapy listener
     self.recent_rand_values  = collections.deque(maxlen=10)              # Ring buffer of recent packet randvalues used to filter packets
     self.listener            = None                                      # Scapy sniffer
     self.l2_socket           = scapy.conf.L2socket(iface=self.interface) # L2 socket, for reuse
+    self.packet              = None                                      # Scapy packet of the most recent received valid ESP-NOW message
     self.local_hw_mac        = self.hw_mac_as_str(self.interface)        # Interface's actual HW MAC
 
     # Local MAC is not set, default to interface MAC
     if not self.local_mac:
       self.local_mac = self.local_hw_mac
+
+    # Prepare the ESP-NOW send packet. Modify and reuse send packet for performance boost
+    self.esp_now_send_packet = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
 
     # Packet filter for all unencrypted ESP-NOW messages and ESP-NOW ACK
     self.filter = "((type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self.local_mac, self.local_mac)
@@ -53,9 +57,17 @@ class ESPythoNow:
 
   # Start listening for ESP-NOW packets
   def start(self):
-    self.listener = scapy.AsyncSniffer(iface=self.interface, prn=self.parse_rx_packet, filter=self.filter)
+
+    self.startup_event.clear()
+
+    self.listener = scapy.AsyncSniffer(iface=self.interface, prn=self.parse_rx_packet, filter=self.filter, started_callback=lambda: self.startup_event.set())
     self.listener.start()
-    time.sleep(self.startup_delay)
+
+    if self.startup_event.wait(timeout=1):
+      return True
+    else:
+      print("Error starting listener")
+      return False
 
 
 
@@ -119,6 +131,9 @@ class ESPythoNow:
       else:
         self.recent_rand_values.append(data[4:8])
 
+      # Store most recent packet
+      self.packet = packet
+
       # Execute RX callback for message
       if callable(self.esp_now_rx_callback):
         self.esp_now_rx_callback(from_mac, to_mac, data[15:])
@@ -143,11 +158,12 @@ class ESPythoNow:
       self.delivery_event.clear()
 
       # Construct packet
-      data   = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
-      packet = scapy.RadioTap()/scapy.Dot11FCS(type=0,subtype=13,addr1=mac,addr2=self.local_mac,addr3="FF:FF:FF:FF:FF:FF")/scapy.Raw(load=data)
+      data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
+      self.esp_now_send_packet.addr1 = mac
+      self.esp_now_send_packet.load = data
 
       # Send ESP-NOW packet
-      self.l2_socket.send(packet)
+      self.l2_socket.send(self.esp_now_send_packet)
 
       # Wait for delivery confirmation or timeout
       if block:
