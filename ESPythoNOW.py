@@ -103,6 +103,9 @@ class ESPythoNow:
     if not allow:
       return
 
+    # Store most recent packet
+    self.packet = packet
+
     # Packet is ACK, delivery confirmation from remote peer
     if is_ack:
       self.delivery_confirmed = True
@@ -116,13 +119,18 @@ class ESPythoNow:
 
     # Packet is ESP-NOW message
     else:
-      # Get ESP-NOW message
-      if "protected" in packet.FCfield:
+
+      # ESP-NOW message is encrypted
+      if scapy.Dot11CCMP in packet:
         # TODO Decode encrypted contents from packet.data with a provided KEY
         #      ESP-NOW uses the CCMP method, which is described in IEEE Std. 802.11-2012, to protect the vendor-specific action frame.
         #      The lengths of both PMK and LMK are 16 bytes.
         #      PMK is used to encrypt LMK with the AES-128 algorithm.
+
+        #data = packet.data # Encrypted data
         data = b"%sEncrypted Message" % random.randbytes(15)
+
+      # ESP-NOW message is plaintext
       else:
         data = packet["Raw"].load
 
@@ -131,9 +139,6 @@ class ESPythoNow:
         return
       else:
         self.recent_rand_values.append(data[4:8])
-
-      # Store most recent packet
-      self.packet = packet
 
       # Execute RX callback for message
       if callable(self.esp_now_rx_callback):
