@@ -4,7 +4,7 @@
 #include <FastLED.h>
 
 #define LED_NUM    82                    // Number of LEDs
-#define LED_PIN    2                     // LED pin
+#define LED_PIN    16                    // LED pin
 unsigned long      fps_last_time;        // Time of last FPS calculation
 unsigned long      fps_frame_count;      // Number of frames since last FPS calculation
 bool               final_packet = false; // Flag for last multipart
