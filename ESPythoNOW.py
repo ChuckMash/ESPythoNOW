@@ -2,6 +2,12 @@ import scapy.all as scapy
 import collections
 import random
 import time
+import struct
+
+try:
+  from Crypto.Cipher import AES
+except:
+  pass
 
 
 
@@ -9,7 +15,7 @@ import time
 
 class ESPythoNow:
 
-  def __init__(self, interface, mac="", callback=None, accept_broadcast=True, accept_all=False, accept_ack=False, block_on_send=False):
+  def __init__(self, interface, mac="", callback=None, accept_broadcast=True, accept_all=False, accept_ack=False, block_on_send=False, pmk="", lmk=""):
     self.interface           = interface                                 # Wireless interface to use
     self.local_mac           = mac.upper()                               # Local ESP-NOW peer MAC, does not need to match actual hw MAC
     self.esp_now_rx_callback = callback                                  # Callback function to execute on packet RX
@@ -17,6 +23,10 @@ class ESPythoNow:
     self.accept_all          = accept_all                                # Accept ESP-NOW packets, no matter the destination MAC
     self.accept_ack          = accept_ack                                # Pass delivery confirmation to callback
     self.delivery_block      = block_on_send                             # Block on send, wait for delivery or timeout
+    self.pmk                 = pmk                                       # Primary Master Key, used to encrypt Local Master Key
+    self.lmk                 = lmk                                       # Local Master Key, used to encrypt ESP-NOW messages
+    self.key                 = None                                      # The PMK encrypted LMK
+    self.encrypted           = False                                     # ESP-NOW messages will be encrypted
     self.delivery_confirmed  = False                                     # Have received a delivery confirmation since the last send
     self.delivery_event      = scapy.threading.Event()                   # Used with block on send
     self.delivery_timeout    = .025                                      # How long to wait for delivery confirmation when blocking
@@ -27,37 +37,64 @@ class ESPythoNow:
     self.packet              = None                                      # Scapy packet of the most recent received valid ESP-NOW message
     self.local_hw_mac        = self.hw_mac_as_str(self.interface)        # Interface's actual HW MAC
     self.block_on_broadcast  = False                                     # Enable block on BROADCAST send, disabled by default. Some ESP-NOW versions will send ACK when receiving BROADCAST
+    self.prepared            = False                                     # Required tasks have been completed, or not
+
+
+
+  # Required tasks prior to sending or receiving
+  def prepare(self):
+    if self.prepared:
+      return False;
 
     # Local MAC is not set, default to interface MAC
     if not self.local_mac:
       self.local_mac = self.local_hw_mac
 
-    # Prepare the ESP-NOW send packet. Modify and reuse send packet for performance boost
+    # If PMK and LMK are valid length, create CCMP key
+    if len(self.pmk) == 16 and len(self.lmk) == 16:
+
+      # Check for library required for encrypted ESP-NOW
+      try:
+        AES
+      except:
+        print("Error! PyCryptoDome missing, encryption can not be enabled.")
+        quit()
+
+      try:
+        # Convert PMK and LMK to bytes if needed
+        self.pmk = str.encode(self.pmk) if isinstance(self.pmk, str) else self.pmk
+        self.lmk = str.encode(self.lmk) if isinstance(self.lmk, str) else self.lmk
+
+        # Create CCM KEY by encrypting LMK with PMK
+        self.key = AES.new(self.pmk, AES.MODE_ECB).encrypt(self.lmk)
+
+        self.encrypted = True
+
+      except Exception as e:
+        print("Encryption error: %s" % e)
+        self.encrypted = False
+
+    # Prepare ahead of time the send packet. Reuses packet for better performance
     self.esp_now_send_packet = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
 
-    # Packet filter for all unencrypted ESP-NOW messages and ESP-NOW ACK
-    self.filter = "((type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self.local_mac, self.local_mac)
+    # Create filter part for local mac
+    self_mac_filter = "" if self.accept_all else " and wlan addr1 %s" % self.local_mac
 
-    # Experimental packet filter for all managment/action frames
-    # Adds detection of encrypted ESP-NOW messages at the cost of downstream filtering
-    #self.filter = "((type 0 subtype 0xd0) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self.local_mac, self.local_mac)
+    # Create packet filter
+    if self.encrypted:
+      # Filter for all managment/action frames. Adds detection of encrypted ESP-NOW messages at the cost of downstream filtering
+      self.filter = "((type 0 subtype 0xd0%s) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self_mac_filter, self.local_mac, self.local_mac)
+    else:
+      # Filter for all unencrypted ESP-NOW messages and ESP-NOW ACK
+      self.filter = "((type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34%s) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self_mac_filter, self.local_mac, self.local_mac)
 
-
-
-  # Provided MAC matches ESP-NOW BROADCAST address
-  def is_broadcast(self, mac):
-    return mac == "FF:FF:FF:FF:FF:FF"
-
-
-
-  # Return interface's HW MAC. "XX:XX:XX:XX:XX:XX"
-  def hw_mac_as_str(self, interface):
-    return ("%02X:" * 6)[:-1] % tuple(scapy.orb(x) for x in scapy.get_if_raw_hwaddr(self.l2_socket.iface)[1])
+    self.prepared = True
 
 
 
   # Start listening for ESP-NOW packets
   def start(self):
+    self.prepare()
 
     self.startup_event.clear()
 
@@ -122,13 +159,20 @@ class ESPythoNow:
 
       # ESP-NOW message is encrypted
       if scapy.Dot11CCMP in packet:
-        # TODO Decode encrypted contents from packet.data with a provided KEY
-        #      ESP-NOW uses the CCMP method, which is described in IEEE Std. 802.11-2012, to protect the vendor-specific action frame.
-        #      The lengths of both PMK and LMK are 16 bytes.
-        #      PMK is used to encrypt LMK with the AES-128 algorithm.
 
-        #data = packet.data # Encrypted data
-        data = b"%sEncrypted Message" % random.randbytes(15)
+        # If decryption keys present
+        if self.encrypted:
+          nonce = b'\x00'+bytes.fromhex(from_mac.replace(':',''))+struct.pack("BBBBBB",packet.PN5,packet.PN4,packet.PN3,packet.PN2,packet.PN1,packet.PN0)
+          data = AES.new(self.key, AES.MODE_CCM, nonce, mac_len=8).decrypt(packet.data[:-8])
+
+          # Check if decryption succeded
+          if not data.startswith(b"\x7f\x18\xfe\x34"):
+            print("Decryption Failed")
+            data = b"%sEncrypted Message" % random.randbytes(15)
+
+        # No decryption keys present
+        else:
+          data = b"%sEncrypted Message" % random.randbytes(15)
 
       # ESP-NOW message is plaintext
       else:
@@ -147,7 +191,8 @@ class ESPythoNow:
 
 
   # Send ESP-NOW message(s) to MAC
-  def send(self, mac, msg, block=None):
+  def send(self, mac, msg, block=None, delay=0):
+    self.prepare()
 
     # block argument overrides global delivery_block setting
     if not isinstance(block, bool):
@@ -165,8 +210,17 @@ class ESPythoNow:
 
       # Construct packet
       data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
-      self.esp_now_send_packet.addr1 = mac
-      self.esp_now_send_packet.load = data
+
+      # ESP-NOW message will be sent encrypted
+      if self.encrypted:
+        print("Sending encrypted ESP-NOW messages is not supported at this time.")
+        print("See https://github.com/ChuckMash/ESPythoNOW/issues/1")
+        return False
+
+      # ESP-NOW message will be sent in plaintext
+      else:
+        self.esp_now_send_packet.addr1 = mac
+        self.esp_now_send_packet.load = data
 
       # Send ESP-NOW packet
       self.l2_socket.send(self.esp_now_send_packet)
@@ -175,4 +229,20 @@ class ESPythoNow:
       if (block and not self.is_broadcast(mac)) or (block and self.block_on_broadcast and self.is_broadcast(mac)):
         returns.append(self.delivery_event.wait(timeout=self.delivery_timeout))
 
+      # Additional delay after sending each ESP-NOW packet
+      if delay:
+        time.sleep(delay)
+
     return all(returns)
+
+
+
+  # Provided MAC matches ESP-NOW BROADCAST address
+  def is_broadcast(self, mac):
+    return mac == "FF:FF:FF:FF:FF:FF"
+
+
+
+  # Return interface's HW MAC. "XX:XX:XX:XX:XX:XX"
+  def hw_mac_as_str(self, interface):
+    return ("%02X:" * 6)[:-1] % tuple(scapy.orb(x) for x in scapy.get_if_raw_hwaddr(self.l2_socket.iface)[1])
