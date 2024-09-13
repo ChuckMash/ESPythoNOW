@@ -61,6 +61,17 @@ input() # Run until enter is pressed
 
 
 ---
+Receive encrypted ESP-NOW messages
+---
+```
+espnow = ESPythoNow(interface="wlp1s0", callback=callback, pmk="0u4hgz7pgct3gnv8", lmk="a3o4csuv2bpvr0wu")
+```
+Note: sending encrypted ESP-NOW messages is not currently supported.
+
+
+
+
+---
 Assorted Details
 ---
 * espnow = ESPythoNow() - Initialize ESPythoNOW 
@@ -99,5 +110,5 @@ NOTE about current state, subject to change or improvements
 * Interface must support monitor mode
 * Any "local" MAC address is supported
   * Only actual local MAC will provide delivery confirmation
-* Does not support ESP-NOW encryption [yet](https://github.com/ChuckMash/ESPythoNOW/issues/1) 
+* Supports receiving encrypted messages, does not support sending [yet](https://github.com/ChuckMash/ESPythoNOW/issues/1) 
 * This is a work in progress
