@@ -78,7 +78,7 @@ class ESPythoNow:
     self.esp_now_send_packet = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
 
     # Create filter part for local mac
-    self_mac_filter = "" if self.accept_all else " and wlan addr1 %s" % self.local_mac
+    self_mac_filter = "" if self.accept_all else " and (wlan addr1 %s or wlan addr1 FF:FF:FF:FF:FF:FF)" % self.local_mac
 
     # Create packet filter
     if self.encrypted:
