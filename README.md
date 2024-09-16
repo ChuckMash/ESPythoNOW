@@ -66,7 +66,7 @@ Receive encrypted ESP-NOW messages
 ```python
 espnow = ESPythoNow(interface="wlp1s0", callback=callback, pmk="0u4hgz7pgct3gnv8", lmk="a3o4csuv2bpvr0wu")
 ```
-Note: sending encrypted ESP-NOW messages is not currently supported.
+Note: [Sending encrypted ESP-NOW messages is not currently supported.](https://github.com/ChuckMash/ESPythoNOW/issues/1) 
 
 
 
