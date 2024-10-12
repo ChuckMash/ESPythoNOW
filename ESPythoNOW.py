@@ -245,4 +245,4 @@ class ESPythoNow:
 
   # Return interface's HW MAC. "XX:XX:XX:XX:XX:XX"
   def hw_mac_as_str(self, interface):
-    return ("%02X:" * 6)[:-1] % tuple(scapy.orb(x) for x in scapy.get_if_raw_hwaddr(self.l2_socket.iface)[1])
+    return scapy.get_if_hwaddr(interface) 
