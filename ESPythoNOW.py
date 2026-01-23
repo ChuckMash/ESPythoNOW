@@ -3,7 +3,8 @@ import collections
 import random
 import time
 import struct
-
+import sys
+import json
 try:
   from Crypto.Cipher import AES
 except:
@@ -38,6 +39,8 @@ class ESPythoNow:
     self.local_hw_mac        = self.hw_mac_as_str(self.interface)        # Interface's actual HW MAC
     self.block_on_broadcast  = False                                     # Enable block on BROADCAST send, disabled by default. Some ESP-NOW versions will send ACK when receiving BROADCAST
     self.prepared            = False                                     # Required tasks have been completed, or not
+    self.message_signatures  = []                                        # Hold message signatures
+
 
 
 
@@ -156,7 +159,6 @@ class ESPythoNow:
 
     # Packet is ESP-NOW message
     else:
-
       # ESP-NOW message is encrypted
       if scapy.Dot11CCMP in packet:
 
@@ -172,11 +174,16 @@ class ESPythoNow:
 
         # No decryption keys present
         else:
+          # Message may never reach here due to scapy filtering rules
           data = b"%sEncrypted Message" % random.randbytes(15)
 
       # ESP-NOW message is plaintext
       else:
         data = packet["Raw"].load
+
+      # Check if vendor category code has been stripped. Due to cooked mode host network mode passthrough removing this byte?
+      if data[0] != 0x7f:
+        data = b"\x7f" + data
 
       # Check packets random values to filter resent messages
       if data[4:8] in self.recent_rand_values:
@@ -184,9 +191,100 @@ class ESPythoNow:
       else:
         self.recent_rand_values.append(data[4:8])
 
-      # Execute RX callback for message
-      if callable(self.esp_now_rx_callback):
+      # Check if there is a signature based callback
+      sig = self.identify_signatures(data[15:])
+
+      if sig:
+        # Filter duplicate messsages, different than filtering resent messages
+        if "recent" in sig:
+          if data[15:] in sig["recent"]:
+            return
+          sig["recent"].append(data[15:])
+
+        # Execute the specific callback tied to the message signature
+        if "callback" in sig and callable(sig["callback"]):
+
+          # Send the hex message data to the signature callback
+          if sig["data"]=="hex":
+            sig["callback"](from_mac, to_mac, data[15:].hex(" "))
+
+          # Send the dict parsed data to the signature callback
+          elif sig["data"]=="dict":
+            sig["callback"](from_mac, to_mac, self.parse_signature_data(sig, data[15:]))
+
+          # Send the dict parsed data to the signature callback as a json string
+          elif sig["data"]=="json":
+            sig["callback"](from_mac, to_mac, json.dumps(self.parse_signature_data(sig, data[15:])))
+
+          # Send the raw message data to the signature callback
+          else:
+            sig["callback"](from_mac, to_mac, data[15:])
+
+      # Execute RX generic callback for message
+      elif callable(self.esp_now_rx_callback):
         self.esp_now_rx_callback(from_mac, to_mac, data[15:])
+
+
+
+  # Identify the message signature
+  def identify_signatures(self, data):
+
+    # Loop through each stored signature
+    for dev in self.message_signatures:
+      sig = dev["signature"]
+
+      # Check messsage length if it exists
+      if "length" in sig and len(data) != sig["length"]:
+        continue
+
+      # Check known byte locations and values
+      if "bytes" in sig:
+        reject = False
+        for k,v in sig["bytes"].items():
+          if data[k] != v:
+            reject = True
+        if reject:
+          continue
+      return dev
+
+
+
+  # Takes the signature data and creates a dictionary of the parsed data to send to callback
+  def parse_signature_data(self, sig, msg):
+    data = dict(zip(sig["vars"], struct.unpack(sig["struct"], msg)))
+    out  = {}
+
+    for k,v in sig["dict"].items():
+      if k not in sig["vars"]:
+        continue
+
+      if isinstance(v, bool) and v:
+        out[k] = data[k]
+
+      elif isinstance(v, dict):
+        for kk,vv in v.items():
+          if data[k] == kk:
+            out[k] = vv
+
+    return out
+
+  def parse_signature_data(self, sig, msg):
+    data = dict(zip(sig["vars"], struct.unpack(sig["struct"], msg)))
+    out  = {}
+
+    for k,v in sig["dict"].items():
+      if k not in sig["vars"]:
+        continue
+
+      if isinstance(v, bool) and v:
+        out[k] = data[k]
+
+      elif isinstance(v, dict):
+        for kk,vv in v.items():
+          if data[k] == kk:
+            out[k] = vv
+
+    return out
 
 
 
@@ -194,7 +292,7 @@ class ESPythoNow:
   def send(self, mac, msg, block=None, delay=0):
     self.prepare()
 
-    # block argument overrides global delivery_block setting
+    # Block argument overrides global delivery_block setting
     if not isinstance(block, bool):
       block = self.delivery_block
 
@@ -237,6 +335,18 @@ class ESPythoNow:
 
 
 
+  # Add message signature and signature callback
+  def add_signature(self, sig, callback, data=None, dedupe=False):
+    sig["callback"] = callback
+    sig["data"] = data
+
+    if dedupe:
+      sig["recent"] = collections.deque(maxlen=10)
+
+    self.message_signatures.append(sig)
+
+
+
   # Provided MAC matches ESP-NOW BROADCAST address
   def is_broadcast(self, mac):
     return mac == "FF:FF:FF:FF:FF:FF"
@@ -245,4 +355,58 @@ class ESPythoNow:
 
   # Return interface's HW MAC. "XX:XX:XX:XX:XX:XX"
   def hw_mac_as_str(self, interface):
-    return ("%02X:" * 6)[:-1] % tuple(scapy.orb(x) for x in scapy.get_if_raw_hwaddr(self.l2_socket.iface)[1])
+    if hasattr(scapy, "get_if_raw_hwaddr"):
+      return ("%02X:" * 6)[:-1] % tuple(scapy.orb(x) for x in scapy.get_if_raw_hwaddr(self.l2_socket.iface)[1])
+    else:
+      return scapy.get_if_hwaddr(interface).upper() # Potentially better suited for containers
+
+
+
+
+
+# QOL structures
+known_profiles = {
+  "wizmote":{
+    "name":      "Wizmote",
+    "struct":    "<BIBBBB4s",
+    "vars":      ["type", "sequence", "dt1", "button", "dt2", "battery", "ccm"],
+    "dict":      {"battery": True, "sequence": True, "button": {1: "on", 2: "off", 3: "sleep", 16: "1", 17: "2", 18: "3", 19: "4", 8: "-", 9: "+"}},
+    "signature": {"length": 13, "bytes": {5: 0x20, 7: 0x01}}
+    },
+
+  "wiz_motion":{
+    "name": "wiz motion sensor",
+    "struct": "<BIBBBBBBBB4s",
+    "vars": ["type", "sequence", "dt1", "_0", "_1", "_2", "motion", "_3", "_4", "_5", "ccm"],
+    "dict": {"motion": {0x0b: True, 0x19: True, 0x0a: False, 0x18: False}}, # 0x0b RT Motion | 0x19 LT Motion | 0x0a RT Clear | 0x18 LT Clear
+    "signature": {"length": 17, "bytes": {0: 0x81, 5: 0x42}}
+    }
+}
+
+
+
+
+if __name__ == "__main__":
+
+  def generic_callback(from_mac, to_mac, data):
+    print(from_mac, to_mac, "Generic callback handler", data.hex(" "))
+
+  def wizmote_callback(from_mac, to_mac, data):
+    print(from_mac, to_mac, "Wizmote callback handler", data)
+
+  def wiz_motion_callback(from_mac, to_mac, data):
+    print(from_mac, to_mac, "Wiz Motion callback handler", data)
+
+
+
+
+
+  espnow = ESPythoNow(interface=sys.argv[1], callback=generic_callback, accept_all=True)
+
+  espnow.add_signature(known_profiles["wizmote"], wizmote_callback, data="dict", dedupe=True)
+
+  espnow.add_signature(known_profiles["wiz_motion"], wiz_motion_callback, data="dict", dedupe=True)
+
+  espnow.start()
+
+  input()
