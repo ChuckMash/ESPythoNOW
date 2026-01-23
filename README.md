@@ -12,11 +12,16 @@ Linux/Python ESP-NOW library.
 Prep the interface and set channel
 ---
 ```
-sudo bash prep.sh wlp1s0 8
+sudo bash prep.sh wlan1 8
 ```
 
 
-
+---
+Try it out, listen for known message types and other ESP-NOW traffic
+---
+```
+python3 ESPythoNOW.py wlan1
+```
 
 
 ---
@@ -29,7 +34,7 @@ import time
 def callback(from_mac, to_mac, msg):
   print("ESP-NOW message from %s to %s: %s" % (from_mac, to_mac, msg))
 
-espnow = ESPythoNow(interface="wlp1s0", callback=callback)
+espnow = ESPythoNow(interface="wlan1", callback=callback)
 espnow.start()
 
 while True:
@@ -51,7 +56,7 @@ from ESPythoNOW import *
 def callback(from_mac, to_mac, msg):
   print("ESP-NOW message from %s to %s: %s" % (from_mac, to_mac, msg))
 
-espnow = ESPythoNow(interface="wlp1s0", accept_all=True, callback=callback)
+espnow = ESPythoNow(interface="wlan1", accept_all=True, callback=callback)
 espnow.start()
 input() # Run until enter is pressed
 ```
@@ -64,7 +69,7 @@ input() # Run until enter is pressed
 Receive encrypted ESP-NOW messages
 ---
 ```python
-espnow = ESPythoNow(interface="wlp1s0", callback=callback, pmk="0u4hgz7pgct3gnv8", lmk="a3o4csuv2bpvr0wu")
+espnow = ESPythoNow(interface="wlan1", callback=callback, pmk="0u4hgz7pgct3gnv8", lmk="a3o4csuv2bpvr0wu")
 ```
 Note: [Sending encrypted ESP-NOW messages is not currently supported.](https://github.com/ChuckMash/ESPythoNOW/issues/1) 
 
