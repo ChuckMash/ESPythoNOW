@@ -387,6 +387,9 @@ known_profiles = {
 
 
 if __name__ == "__main__":
+  if len(sys.argv) < 2:
+    print("Test/example usage: python3 ESPythoNOW.py wlan1")
+    quit()
 
   def generic_callback(from_mac, to_mac, data):
     print(from_mac, to_mac, "Generic callback handler", data.hex(" "))
