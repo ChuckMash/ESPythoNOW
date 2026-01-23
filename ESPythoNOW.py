@@ -268,24 +268,6 @@ class ESPythoNow:
 
     return out
 
-  def parse_signature_data(self, sig, msg):
-    data = dict(zip(sig["vars"], struct.unpack(sig["struct"], msg)))
-    out  = {}
-
-    for k,v in sig["dict"].items():
-      if k not in sig["vars"]:
-        continue
-
-      if isinstance(v, bool) and v:
-        out[k] = data[k]
-
-      elif isinstance(v, dict):
-        for kk,vv in v.items():
-          if data[k] == kk:
-            out[k] = vv
-
-    return out
-
 
 
   # Send ESP-NOW message(s) to MAC
