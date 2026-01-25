@@ -191,38 +191,41 @@ class ESPythoNow:
       else:
         self.recent_rand_values.append(data[4:8])
 
+      # Parse messages from packet, v1.0 and v2.0
+      msg = b''.join([data[15:][i:i + 250] for i in range(0, len(data[15:]), 257)])
+
       # Check if there is a signature based callback
-      sig = self.identify_signatures(data[15:])
+      sig = self.identify_signatures(msg)
 
       if sig:
         # Filter duplicate messsages, different than filtering resent messages
         if "recent" in sig:
-          if data[15:] in sig["recent"]:
+          if msg in sig["recent"]:
             return
-          sig["recent"].append(data[15:])
+          sig["recent"].append(msg)
 
         # Execute the specific callback tied to the message signature
         if "callback" in sig and callable(sig["callback"]):
 
           # Send the hex message data to the signature callback
           if sig["data"]=="hex":
-            sig["callback"](from_mac, to_mac, data[15:].hex(" "))
+            sig["callback"](from_mac, to_mac, msg.hex(" "))
 
           # Send the dict parsed data to the signature callback
           elif sig["data"]=="dict":
-            sig["callback"](from_mac, to_mac, self.parse_signature_data(sig, data[15:]))
+            sig["callback"](from_mac, to_mac, self.parse_signature_data(sig, msg))
 
           # Send the dict parsed data to the signature callback as a json string
           elif sig["data"]=="json":
-            sig["callback"](from_mac, to_mac, json.dumps(self.parse_signature_data(sig, data[15:])))
+            sig["callback"](from_mac, to_mac, json.dumps(self.parse_signature_data(sig, msg)))
 
           # Send the raw message data to the signature callback
           else:
-            sig["callback"](from_mac, to_mac, data[15:])
+            sig["callback"](from_mac, to_mac, msg)
 
       # Execute RX generic callback for message
       elif callable(self.esp_now_rx_callback):
-        self.esp_now_rx_callback(from_mac, to_mac, data[15:])
+        self.esp_now_rx_callback(from_mac, to_mac, msg)
 
 
 
@@ -288,8 +291,13 @@ class ESPythoNow:
       self.delivery_confirmed = False
       self.delivery_event.clear()
 
-      # Construct packet
-      data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
+      # Send as v1.0 if message 250 bytes or less
+      if len(msg_) <= 250:
+        data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
+
+      # Send as v2.0 packet, up to 1427 bytes. This is less than the perported ESP-NOW v2.0 limit of 1470, potentially due to MTU size?
+      else:
+        data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + b"\x18\xfe\x34\x04\x02" + msg_[i:i+250] for i in range(0, len(msg_), 250)])
 
       # ESP-NOW message will be sent encrypted
       if self.encrypted:
@@ -374,7 +382,7 @@ if __name__ == "__main__":
     quit()
 
   def generic_callback(from_mac, to_mac, data):
-    print(from_mac, to_mac, "Generic callback handler", data.hex(" "))
+    print(from_mac, to_mac, "Generic callback handler. (%s)" % len(data), data.hex(" "))
 
   def wizmote_callback(from_mac, to_mac, data):
     print(from_mac, to_mac, "Wizmote callback handler", data)
