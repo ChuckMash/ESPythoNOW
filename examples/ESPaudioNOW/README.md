@@ -4,7 +4,8 @@ Stream MP3 audio wirelessly from Linux to ESP32 devices using ESP-NOW protocol.
 
 ## Overview
 
-ESPaudioNOW enables real-time wireless MP3 streaming from a Python sender to an ESP32 receiver.
+- ESPaudioNOW enables real-time wireless MP3 streaming from a Python sender to an ESP32 receiver.
+- Tested up to 320 KBps audio
 
 
 [![Watch the video](https://i.sstatic.net/qIFETh_wlEA.png)](https://youtu.be/qIFETh_wlEA)
