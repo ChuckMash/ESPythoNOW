@@ -3,6 +3,7 @@ Linux/Python ESP-NOW library.
 
 * Send and receive ESP-NOW messages to and from a Linux machine and ESP8266/ESP32 devices
 * Monitor all ESP-NOW messages
+* [Stream high quality audio to ESP device](https://github.com/ChuckMash/ESPythoNOW/tree/main/examples/ESPaudioNOW)
 * Supports ESP-NOW v1.0 and v2.0
   * v2.0 supports over 1,400 bytes per message!
 
