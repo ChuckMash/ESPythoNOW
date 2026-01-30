@@ -145,6 +145,8 @@ class AudioFileSourceESPNOW : public AudioFileSource {
 
 
 void setup() {
+  buffer_lock  = xSemaphoreCreateMutex();
+
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
@@ -154,7 +156,6 @@ void setup() {
   delay(1000);
   Serial.printf("MAC Address: %s\n", WiFi.macAddress().c_str());
 
-  buffer_lock  = xSemaphoreCreateMutex();
   espnowSource = new AudioFileSourceESPNOW(); 
   buff         = new AudioFileSourceBuffer(espnowSource, AUDIO_BUFFER_SIZE);
   id3          = new AudioFileSourceID3(buff);
