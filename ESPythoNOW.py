@@ -280,7 +280,8 @@ class ESPythoNow:
 
       # Send as v2.0 packet, messages up to 1427 bytes (1500 MTU), or up to 2089 bytes (2304 MTU)
       else:
-        plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + b"\x18\xfe\x34\x04\x02" + msg_[i:i+250] for i in range(0, len(msg_), 250)])
+        #plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + b"\x18\xfe\x34\x04\x02" + msg_[i:i+250] for i in range(0, len(msg_), 250)])
+        plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + b"\x18\xfe\x34\x04" + (b"\x12" if i+250 < len(msg_) else b"\x02") + msg_[i:i+250] for i in range(0, len(msg_), 250)])
 
       # Send encrypted ESP-NOW message
       if self.encrypted:
@@ -312,6 +313,7 @@ class ESPythoNow:
       # Send ESP-NOW packet
       try:
 
+        # Send the packet directly to the socket, can be much faster
         if raw and not self.encrypted: # Send the packet directly to the socket, can be much faster
           self.esp_now_send_packet_raw[14:20] = bytes.fromhex(packet.addr1.replace(':', '')) # mac
           self.esp_now_send_packet_raw[20:26] = bytes.fromhex(packet.addr2.replace(':', '')) # local mac
@@ -321,7 +323,8 @@ class ESPythoNow:
 
           self.l2_socket.ins.send(self.esp_now_send_packet_raw) #,64)
 
-        else: # Send the packet with scapy
+        # Send the packet with scapy
+        else:
           self.l2_socket.send(packet)
 
       except Exception as e:
@@ -633,20 +636,12 @@ decoders = {
 
 def main():
   import argparse
+
   def s2b(v): return True if v.lower() in ('yes', 'true', 't', 'y', '1') else False
 
-
-
-  def generic_callback(from_mac, to_mac, data):
-    print(from_mac, to_mac, "Generic callback handler. (%s)" % len(data), data)
-
-  def wizmote_callback(from_mac, to_mac, data):
-    print(from_mac, to_mac, "Wizmote callback handler", data)
-
-  def wiz_motion_callback(from_mac, to_mac, data):
-    print(from_mac, to_mac, "Wiz Motion callback handler", data)
-
-
+  def generic_callback   (from_mac, to_mac, data): print(from_mac, to_mac, "Generic callback handler. (%s)" % len(data), data)
+  def wizmote_callback   (from_mac, to_mac, data): print(from_mac, to_mac, "Wizmote callback handler", data)
+  def wiz_motion_callback(from_mac, to_mac, data): print(from_mac, to_mac, "Wiz Motion callback handler", data)
 
   parser = argparse.ArgumentParser(description='ESPythoNOW: ESP-NOW for Linux!')
 
