@@ -5,7 +5,9 @@ Linux/Python ESP-NOW library.
 * Monitor all ESP-NOW messages
 * [Stream high quality audio to ESP device](https://github.com/ChuckMash/ESPythoNOW/tree/main/examples/ESPaudioNOW)
 * Supports ESP-NOW v1.0 and v2.0
-  * v2.0 supports over 1,400 bytes per message!
+  * ESP-NOW on ESP32 supports messages up to 1,470 bytes.
+  * ESPythoNOW supports messages up to 2,089 bytes!
+    
 * Supports sending and receiving encrypted ESP-NOW messages!
 * MQTT Subscribe and publish, send and receive ESP-NOW  
 *  **This is a work in progress**
