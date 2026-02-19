@@ -214,5 +214,5 @@ NOTE about current state, subject to change or improvements
 ---
 * Interface must support monitor mode
 * Any "local" MAC address is supported
-  * Only actual local MAC will provide delivery confirmation
+  * Only actual local hardware MAC will provide delivery confirmation
 *  **This is a work in progress**
