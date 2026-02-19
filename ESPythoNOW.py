@@ -22,17 +22,17 @@ except:
 
 
 
-
-
 class ESPythoNow:
 
-  def __init__(self, interface, set_interface=False, channel=8, mac="", callback=None, accept_broadcast=True, accept_all=False, accept_ack=False, block_on_send=False, pmk="", lmk="", decoders={}, mqtt_config={}):
+  def __init__(self, interface, set_interface=True, mtu=1500, rate=1, channel=0, mac="", callback=None, accept_broadcast=True, accept_all=False, accept_ack=False, block_on_send=False, pmk="", lmk="", decoders={}, mqtt_config={}):
 
-    if set_interface and channel:
-      self.prep_interface(interface, channel)
+    if set_interface:
+      self.prep_interface(interface, channel, mtu=mtu)
 
     self.interface           = interface                                 # Wireless interface to use
     self.set_interface       = set_interface                             # Set the interface to monitor mode and channel
+    self.mtu                 = mtu                                       # MTU for the interface
+    self.rate                = float(rate)                               # PHY rate 1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54 Mbps
     self.wifi_channel        = channel                                   # Wifi Channel to use, if set_interface
     self.local_mac           = mac.upper() if mac else None              # Local ESP-NOW peer MAC, does not need to match actual hw MAC
     self.esp_now_rx_callback = callback                                  # Callback function to execute on packet RX
@@ -59,62 +59,88 @@ class ESPythoNow:
     self.prepared            = False                                     # Required tasks have been completed, or not
     self.use_mqtt            = False                                     # MQTT will be used
 
-    if mqtt_config:
-      if not HAVE_PAHO:
-        print("Error! paho-mqtt missing, MQTT can not be enabled.")
-        self.use_mqtt = False
-      else:
-        self.mqtt_client_id     = f"ESPythoNOW-{self.local_hw_mac}"
-        self.mqtt_topic_base    = f"ESPythoNOW-{self.local_hw_mac}"
-        self.mqtt_topic_send    = self.mqtt_topic_base+"/send"
-        self.mqtt_broker_ip     = self.mqtt_config.get("ip",        None)
-        self.mqtt_broker_port   = self.mqtt_config.get("port",      1883)
-        self.mqtt_username      = self.mqtt_config.get("username",  None)
-        self.mqtt_password      = self.mqtt_config.get("password",  None)
-        self.mqtt_keepalive     = self.mqtt_config.get("keepalive", 60)
-        self.mqtt_publish_raw   = self.mqtt_config.get("raw",       False) # Publish raw bytes
-        self.mqtt_publish_hex   = self.mqtt_config.get("hex",       False) # Publish hex bytes
-        self.mqtt_publish_json  = self.mqtt_config.get("json",      False) # Publish JSON of message, if decoder exists
-        self.mqtt_publish_ack   = self.mqtt_config.get("ack",       False) # Publish any received ACK messages, can loosely be used to check if message has been delivered
-        self.mqtt_discard_empty = True                                     # Discard messages with no data
-
-        # Ensure that at least hex is published to MQTT
-        if not any([self.mqtt_publish_raw, self.mqtt_publish_hex, self.mqtt_publish_json]):
-          self.mqtt_publish_hex = True
-
-        if not self.mqtt_broker_ip:
-          print("No broker address, not using MQTT")
-          self.use_mqtt = False
-        else:
-          self.use_mqtt = True
 
 
 
-  # Experimental. Prepare the interface with monitor mode and channel (replaces prep.sh)
-  def prep_interface(self, interface, channel):
-    print(f"Setting {interface} to monitor mode, and channel {channel}")
-    methods = [
-      [['ip', 'link', 'set', interface, 'down'],
-       ['iw', 'dev', interface, 'set', 'type', 'monitor'],
-       ['ip', 'link', 'set', interface, 'up'],
-       ['iw', 'dev', interface, 'set', 'channel', str(channel)]],
 
-      [['ifconfig', interface, 'down'],
-       ['iwconfig', interface, 'mode', 'monitor'],
-       ['ifconfig', interface, 'up'],
-       ['iwconfig', interface, 'channel', str(channel)]],
-    ]
+  # Set the MTU for the interface
+  def set_mtu(self, interface, mtu=1500):
+    print(f"Setting {interface} MTU to {mtu}")
+    try:
+      with open(f"/sys/class/net/{interface}/mtu", 'r+') as f:
+        if int(f.read()) == mtu:                               # Check existing MTU
+          return True                                          # Do nothing if already matches
+        f.write(str(mtu))                                      # Set new MTU
+        f.seek(0)
+        success = int(f.read()) == mtu                         # validation of new MTU
+        if success:
+          self.mtu = mtu
+        return success
+    except Exception as e:
+      print("Failed to set MTU:", e)
+    return False
+
+
+
+  # Get monitor mode status and channel of interface
+  def get_interface_info(self, interface):
+    for check_cmd, mode_str, channel_pattern in [
+      (['iw', 'dev', interface, 'info'], 'type monitor', 'channel '),
+      (['iwconfig', interface], 'Mode:Monitor', 'Frequency:')]:
+      try:
+        result = subprocess.run(check_cmd, capture_output=True, text=True, check=True).stdout
+        if mode_str in result:
+          try:
+            freq = float(result.split(channel_pattern)[1].split()[0])
+            channel = int(freq) if channel_pattern == 'channel ' else int((freq * 1000 - 2407) / 5)
+            return (True, channel)
+          except:
+            return (True, None)
+      except:
+        pass
+    return (False, None)
+
+
+
+  # Prepare the interface with monitor mode and channel (replaces prep.sh)
+  def prep_interface(self, interface, channel=0, mtu=0, force=False):
+    monitor, current_channel = self.get_interface_info(interface) if not force else (False, None)
+    need_monitor = not monitor
+    need_channel = channel and current_channel != channel
+
+    if not need_monitor and not need_channel and mtu==0:
+      print(f"{interface} already configured")
+      return
+
+    print(f"Setting {interface} for monitor mode and channel {channel}")
+
+    methods = [[], []]
+
+    if need_monitor:
+      methods[0].extend([['ip', 'link', 'set', interface, 'down'],
+                         ['iw', 'dev', interface, 'set', 'type', 'monitor'],
+                         ['ip', 'link', 'set', interface, 'up']])
+
+      methods[1].extend([['ifconfig', interface, 'down'],
+                         ['iwconfig', interface, 'mode', 'monitor'],
+                         ['ifconfig', interface, 'up']])
+
+    if need_channel:
+      methods[0].append(['iw', 'dev', interface, 'set', 'channel', str(channel)])
+      methods[1].append(['iwconfig', interface, 'channel', str(channel)])
 
     for method in methods:
       try:
         for cmd in method:
-          print(cmd)
           subprocess.run(cmd, check=True)
+        if mtu:                              # If MTU is set
+          self.set_mtu(interface, mtu=mtu)   # Set interface MTU
         return
       except:
         pass
 
-    print("Setting interface failed. Install (net-tools and wireless-tools) or (iproute2 and iw)")
+    print("Failed. Install (iproute2 and iw) or (net-tools and wireless-tools)")
+
 
 
   # Required tasks prior to sending or receiving
@@ -150,8 +176,15 @@ class ESPythoNow:
         self.encrypted = False
 
     # Prepare ahead of time the send packet. Reuses packet for better performance
-    self.esp_now_send_packet           = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
-    self.esp_now_send_packet_encrypted = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, FCfield='protected', addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
+    #self.esp_now_send_packet           = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
+    #self.esp_now_send_packet_encrypted = scapy.RadioTap() / scapy.Dot11FCS(type=0, subtype=13, FCfield='protected', addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
+
+    self.esp_now_send_packet           = scapy.RadioTap(present="Rate+Flags", Rate=self.rate) / scapy.Dot11FCS(type=0, subtype=13, addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
+    self.esp_now_send_packet_encrypted = scapy.RadioTap(present="Rate+Flags", Rate=self.rate) / scapy.Dot11FCS(type=0, subtype=13, FCfield='protected', addr1=self.local_mac, addr2=self.local_mac, addr3="FF:FF:FF:FF:FF:FF") / scapy.Raw(load=None)
+
+    self.esp_now_send_packet_raw       = bytearray(scapy.raw(self.esp_now_send_packet))
+
+
 
     # Create filter part for local mac
     self_mac_filter = "" if self.accept_all else " and (wlan addr1 %s or wlan addr1 FF:FF:FF:FF:FF:FF)" % self.local_mac
@@ -170,33 +203,61 @@ class ESPythoNow:
         dec["recent"] = collections.deque(maxlen=dec["dedupe"])
 
     # MQTT
-    if self.use_mqtt:
-      self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    if self.mqtt_config:
+      if not HAVE_PAHO:
+        print("Error! paho-mqtt missing, MQTT can not be enabled.")
+        self.use_mqtt = False
+      else:
+        self.mqtt_client_id     = f"ESPythoNOW-{self.local_mac}"
+        self.mqtt_topic_base    = f"ESPythoNOW-{self.local_mac}"
+        self.mqtt_topic_send    = self.mqtt_topic_base+"/send"
+        self.mqtt_broker_ip     = self.mqtt_config.get("ip",        None)  # MQTT broker IP, hostname not supported?
+        self.mqtt_broker_port   = self.mqtt_config.get("port",      1883)  # MQTT broker port, default to 1883
+        self.mqtt_username      = self.mqtt_config.get("username",  None)  # MQTT broker username
+        self.mqtt_password      = self.mqtt_config.get("password",  None)  # MQTT broker password
+        self.mqtt_keepalive     = self.mqtt_config.get("keepalive", 60)    # Keepalive for MQTT connection
+        self.mqtt_publish_raw   = self.mqtt_config.get("raw",       False) # Publish raw bytes
+        self.mqtt_publish_hex   = self.mqtt_config.get("hex",       False) # Publish hex bytes
+        self.mqtt_publish_json  = self.mqtt_config.get("json",      False) # Publish JSON of message, if decoder exists
+        self.mqtt_publish_ack   = self.mqtt_config.get("ack",       False) # Publish any received ACK messages, can loosely be used to check if message has been delivered
+        self.mqtt_discard_empty = True                                     # Discard messages with no data
 
-      if self.mqtt_username and self.mqtt_password:
-        self.mqtt_client.username_pw_set(self.mqtt_username, self.mqtt_password)
+        # Ensure that at least hex is published to MQTT
+        if not any([self.mqtt_publish_raw, self.mqtt_publish_hex, self.mqtt_publish_json]):
+          self.mqtt_publish_hex = True
 
-      # Set MQTT callbacks
-      self.mqtt_client.on_message = self.mqtt_on_message
-      self.mqtt_client.on_connect = self.mqtt_on_connect
+        if not self.mqtt_broker_ip:
+          print("No broker address, not using MQTT")
+          self.use_mqtt = False
+        else:
+          self.use_mqtt = True
 
-      # Set LWT for offline
-      self.mqtt_client.will_set(self.mqtt_topic_base, payload="offline", qos=1, retain=True)
+          self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 
-      # Connect to the broker
-      try:
-        self.mqtt_client.connect(self.mqtt_broker_ip, self.mqtt_broker_port, keepalive=self.mqtt_keepalive)
-      except Exception as e:
-        print(f"Connection failed: {e}")
+          if self.mqtt_username and self.mqtt_password:
+            self.mqtt_client.username_pw_set(self.mqtt_username, self.mqtt_password)
 
-      self.mqtt_client.loop_start()
+          # Set MQTT callbacks
+          self.mqtt_client.on_message = self.mqtt_on_message
+          self.mqtt_client.on_connect = self.mqtt_on_connect
+
+          # Set LWT for offline
+          self.mqtt_client.will_set(self.mqtt_topic_base, payload="offline", qos=1, retain=True)
+
+          # Connect to the broker
+          try:
+            self.mqtt_client.connect(self.mqtt_broker_ip, self.mqtt_broker_port, keepalive=self.mqtt_keepalive)
+          except Exception as e:
+            print(f"Connection failed: {e}")
+
+          self.mqtt_client.loop_start()
 
     self.prepared = True
 
 
 
   # Send ESP-NOW message(s) to MAC
-  def send(self, mac, msg, block=None, delay=0):
+  def send(self, mac, msg, block=None, delay=0, raw=False):
     self.prepare()
 
     # Block argument overrides global delivery_block setting
@@ -217,7 +278,7 @@ class ESPythoNow:
       if len(msg_) <= 250:
         plaintext_data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
 
-      # Send as v2.0 packet, up to 1427 bytes. This is less than the perported ESP-NOW v2.0 limit of 1470, potentially due to MTU size?
+      # Send as v2.0 packet, messages up to 1427 bytes (1500 MTU), or up to 2089 bytes (2304 MTU)
       else:
         plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + b"\x18\xfe\x34\x04\x02" + msg_[i:i+250] for i in range(0, len(msg_), 250)])
 
@@ -249,7 +310,22 @@ class ESPythoNow:
       packet.SC       = (((packet.SC >> 4) + 1) & 0xFFF) << 4
 
       # Send ESP-NOW packet
-      self.l2_socket.send(packet)
+      try:
+
+        if raw and not self.encrypted: # Send the packet directly to the socket, can be much faster
+          self.esp_now_send_packet_raw[14:20] = bytes.fromhex(packet.addr1.replace(':', '')) # mac
+          self.esp_now_send_packet_raw[20:26] = bytes.fromhex(packet.addr2.replace(':', '')) # local mac
+          self.esp_now_send_packet_raw[32:34] = packet.SC.to_bytes(2, 'little')              # count
+          self.esp_now_send_packet_raw[34:-4] = plaintext_data                               # data
+          # Driver *should* deal with [-4:] recalculate FCS
+
+          self.l2_socket.ins.send(self.esp_now_send_packet_raw) #,64)
+
+        else: # Send the packet with scapy
+          self.l2_socket.send(packet)
+
+      except Exception as e:
+        print("Error sending:",e)
 
       # Wait for delivery confirmation from remote peer or timeout
       if (block and not self.is_broadcast(mac)) or (block and self.block_on_broadcast and self.is_broadcast(mac)):
@@ -574,25 +650,27 @@ def main():
 
   parser = argparse.ArgumentParser(description='ESPythoNOW: ESP-NOW for Linux!')
 
-  parser.add_argument('-i',      '--interface',        required=True,  default="wlan1",         help='Dedicated wireless interface (e.g., wlan1)')
-  parser.add_argument('-c',      '--channel',          required=False, default=None,            help='Wireless channel to use')
-  parser.add_argument('-s',      '--set_interface',    required=False, default=False, type=s2b, help='ESPythoNOW will try and set monitor mode and channel')
-  parser.add_argument('-m',      '--mac',              required=False, default=None,            help='Override local MAC address (default: interfaces MAC)')
-  parser.add_argument('-b',      '--accept_broadcast', required=False, default=True,  type=s2b, help='Accept broadcast ESP-NOW messages (default: True)')
-  parser.add_argument('-a',      '--accept_all',       required=False, default=False, type=s2b, help='Accept all ESP-NOW messages regardless of destination (default: False)')
-  parser.add_argument('-ack',    '--accept_ack',       required=False, default=False, type=s2b, help='Execute callback on ACK confirmation (default: False)')
-  parser.add_argument('-blk',    '--block_on_send',    required=False, default=False, type=s2b, help='Block on sending data, wait for ACK from receiving device')
-  parser.add_argument('-pmk',    '--primary_key',      required=False, default=None,            help='Primary master key for encrypted ESP-NOW (16 chars)')
-  parser.add_argument('-lmk',    '--local_key',        required=False, default=None,            help='Local master key for encrypted ESP-NOW (16 chars)')
-  parser.add_argument('-mqh',    '--mqtt_host',        required=False, default=None,            help='MQTT broker IP address')
-  parser.add_argument('-mqp',    '--mqtt_port',        required=False, default=1883,  type=int, help='MQTT broker port (default: 1883)')
-  parser.add_argument('-mqu',    '--mqtt_username',    required=False, default=None,            help='MQTT username for authentication')
-  parser.add_argument('-mqP',    '--mqtt_password',    required=False, default=None,            help='MQTT password for authentication')
-  parser.add_argument('-mqk',    '--mqtt_keepalive',   required=False, default=60,    type=int, help='MQTT keepalive')
-  parser.add_argument('-mqraw',  '--mqtt_raw',         required=False, default=False, type=s2b, help='Publish raw bytes to MQTT (default: True)')
-  parser.add_argument('-mqhex',  '--mqtt_hex',         required=False, default=True,  type=s2b, help='Publish hex-encoded data to MQTT (default: True)')
-  parser.add_argument('-mqjson', '--mqtt_json',        required=False, default=True,  type=s2b, help='Publish JSON-formatted data to MQTT, if decoder exists. (default: True)')
-  parser.add_argument('-mqack',  '--mqtt_ack',         required=False, default=False, type=s2b, help='Publish ACK (messsage received) to confirm message delivery on send (default: False)')
+  parser.add_argument('-i',      '--interface',        required=True,  default="wlan1",           help='Dedicated wireless interface (e.g., wlan1)')
+  parser.add_argument('-c',      '--channel',          required=False, default=0,     type=int,   help='Wireless channel to use')
+  parser.add_argument('-s',      '--set_interface',    required=False, default=False, type=s2b,   help='ESPythoNOW will try and set monitor mode and channel')
+  parser.add_argument('-M',      '--mtu',              required=False, default=0,     type=int,   help='ESPythoNOW will try and set the MTU for the interface')
+  parser.add_argument('-r',      '--rate',             required=False, default=1,     type=float, help='ESPythoNOW will try and set the PHY rate for the interface')
+  parser.add_argument('-m',      '--mac',              required=False, default=None,              help='Override local MAC address (default: interfaces MAC)')
+  parser.add_argument('-b',      '--accept_broadcast', required=False, default=True,  type=s2b,   help='Accept broadcast ESP-NOW messages (default: True)')
+  parser.add_argument('-a',      '--accept_all',       required=False, default=False, type=s2b,   help='Accept all ESP-NOW messages regardless of destination (default: False)')
+  parser.add_argument('-ack',    '--accept_ack',       required=False, default=False, type=s2b,   help='Execute callback on ACK confirmation (default: False)')
+  parser.add_argument('-blk',    '--block_on_send',    required=False, default=False, type=s2b,   help='Block on sending data, wait for ACK from receiving device')
+  parser.add_argument('-pmk',    '--primary_key',      required=False, default=None,              help='Primary master key for encrypted ESP-NOW (16 chars)')
+  parser.add_argument('-lmk',    '--local_key',        required=False, default=None,              help='Local master key for encrypted ESP-NOW (16 chars)')
+  parser.add_argument('-mqh',    '--mqtt_host',        required=False, default=None,              help='MQTT broker IP address')
+  parser.add_argument('-mqp',    '--mqtt_port',        required=False, default=1883,  type=int,   help='MQTT broker port (default: 1883)')
+  parser.add_argument('-mqu',    '--mqtt_username',    required=False, default=None,              help='MQTT username for authentication')
+  parser.add_argument('-mqP',    '--mqtt_password',    required=False, default=None,              help='MQTT password for authentication')
+  parser.add_argument('-mqk',    '--mqtt_keepalive',   required=False, default=60,    type=int,   help='MQTT keepalive')
+  parser.add_argument('-mqraw',  '--mqtt_raw',         required=False, default=False, type=s2b,   help='Publish raw bytes to MQTT (default: True)')
+  parser.add_argument('-mqhex',  '--mqtt_hex',         required=False, default=True,  type=s2b,   help='Publish hex-encoded data to MQTT (default: True)')
+  parser.add_argument('-mqjson', '--mqtt_json',        required=False, default=True,  type=s2b,   help='Publish JSON-formatted data to MQTT, if decoder exists. (default: True)')
+  parser.add_argument('-mqack',  '--mqtt_ack',         required=False, default=False, type=s2b,   help='Publish ACK (messsage received) to confirm message delivery on send (default: False)')
 
   args = parser.parse_args()
 
@@ -614,6 +692,8 @@ def main():
     interface        = args.interface,
     channel          = args.channel,
     set_interface    = args.set_interface,
+    mtu              = args.mtu,
+    rate             = args.rate,
     mac              = args.mac,
     accept_broadcast = args.accept_broadcast,
     accept_all       = args.accept_all,
@@ -638,4 +718,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-  
