@@ -725,6 +725,7 @@ decoders = {
 
 def main():
   import argparse
+  import signal
 
   def s2b(v): return True if v.lower() in ('yes', 'true', 't', 'y', '1') else False
 
@@ -822,7 +823,10 @@ def main():
 
 
   espnow.start()
-  input()
+  signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
+  signal.pause()
+
+
 
 
 
