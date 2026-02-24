@@ -823,8 +823,12 @@ def main():
 
 
   espnow.start()
-  signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
-  signal.pause()
+
+  try:
+    signal.pause()
+  except:
+    pass
+  print()
 
 
 
