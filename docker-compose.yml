@@ -9,24 +9,32 @@ services:
     cap_add:
       - NET_RAW
       - NET_ADMIN
-    environment:
-      - INTERFACE=wlan1
-      - CHANNEL=8
-      - SET_INTERFACE=true
-      - ACCEPT_BROADCAST=true
-      - ACCEPT_ALL=true
-      - ACCEPT_ACK=false
-      #- LMK=a3o4csuv2bpvr0wu # Examples, do not use
-      #- PMK=0u4hgz7pgct3gnv8 # Examples, do not use
-      - MQTT_HOST=
-      - MQTT_PORT=1883
-      - MQTT_USERNAME=
-      - MQTT_PASSWORD=
-      - MQTT_KEEPALIVE=60
-      - MQTT_RAW=true
-      - MQTT_HEX=true
-      - MQTT_JSON=true
-      - MQTT_ACK=false
-    stdin_open: true
     tty: true
-    command: bash -c "python3 -u /app/ESPythoNOW.py --interface=$$INTERFACE --channel=$$CHANNEL --set_interface=$$SET_INTERFACE --accept_broadcast=$$ACCEPT_BROADCAST --accept_all=$$ACCEPT_ALL --accept_ack=$$ACCEPT_ACK -lmk=$$LMK -pmk=$$PMK --mqtt_host=$$MQTT_HOST --mqtt_port=$$MQTT_PORT --mqtt_username=$$MQTT_USERNAME --mqtt_password=$$MQTT_PASSWORD --mqtt_keepalive=$$MQTT_KEEPALIVE --mqtt_raw=$$MQTT_RAW --mqtt_hex=$$MQTT_HEX --mqtt_json=$$MQTT_JSON --mqtt_ack=$$MQTT_ACK"
+    command:
+      - python3
+      - "-u"
+      - /app/ESPythoNOW.py                          # * -> Functionality and performance may be dependent on driver/chipset/kernel/other
+      - --interface=wlan1                           #   Dedicated wireless interface (e.g., wlan1)
+      - --channel=8                                 #   Wireless channel to use
+      - --set_interface=true                        # * Set monitor mode and channel
+      - --mtu=0                                     # * Set the MTU for the interface
+      - --rate=0                                    # * Set the PHY rate for the interface
+      - --send_raw=false                            # * Send with raw packet, can be faster and unstable
+      - --no_wait=false                             # * Don't wait for confirmation from receiver when sending. Speeds up UNICAST sending at cost of no L2 retry
+      - --retry_limit=0                             # * Try and set the L2 retry limit
+      - --repeat=0                                  # * Force packet retry in send N times
+      - --accept_broadcast=true                     #   Accept broadcast ESP-NOW messages
+      - --accept_all=true                           #   Accept all ESP-NOW messages regardless of intended destination
+      - --accept_ack=false                          #   Execute callback on ACK confirmation
+      - --block_on_send=false                       #   Block on sending data, wait for ACK from receiving device
+      #- --primary_key="0u4hgz7pgct3gnv8"           #   Primary master key for encrypted ESP-NOW (16 chars), CHANGE EXAMPLE KEY!
+      #- --local_key="a3o4csuv2bpvr0wu"             #   Local master key for encrypted ESP-NOW (16 chars), CHANGE EXAMPLE KEY!
+      - --mqtt_host=                                #   MQTT broker IP address
+      - --mqtt_port=1883                            #   MQTT broker port
+      - --mqtt_username=                            #   MQTT username for authentication
+      - --mqtt_password=                            #   MQTT password for authentication
+      - --mqtt_keepalive=60                         #   MQTT keepalive
+      - --mqtt_raw=False                            #   Publish raw bytes to MQTT
+      - --mqtt_hex=True                             #   Publish hex-encoded data to MQTT
+      - --mqtt_json=True                            #   Publish JSON-formatted data to MQTT, if decoder exists
+      - --mqtt_ack=false                            #   Publish ACK (delivery confirmation) to confirm message delivery on send
