@@ -125,7 +125,7 @@ class ESPythoNow:
     need_monitor = not monitor
     need_channel = channel and current_channel != channel
 
-    if not need_monitor and not need_channel and mtu==0:
+    if not need_monitor and not need_channel and mtu==0 and retry_limit==0:
       print(f"{interface} already configured")
       return
 
