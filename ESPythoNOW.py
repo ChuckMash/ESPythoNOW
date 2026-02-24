@@ -818,11 +818,12 @@ def main():
     espnow.esp_now_rx_callback = speed_test_cb # Callback to get results from remote device after the test
     espnow.start()                             # Listen for a response
     time.sleep(15)                             # Wait for a response
-    #quit()                                     # Test complete.
 
 
 
   espnow.start()
+
+
   
   signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
   try:
