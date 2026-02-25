@@ -10,7 +10,6 @@ arch:
   - armhf
   - i386
 host_network: true
-privileged: false
 cap_add:
   - NET_RAW
   - NET_ADMIN
