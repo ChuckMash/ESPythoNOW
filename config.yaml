@@ -1,5 +1,5 @@
 name: "ESPythoNOW"
-description: "ESP-NOW to MQTT bridge - e"
+description: "ESP-NOW to MQTT bridge - f"
 version: "1.0.0"
 slug: "espythonow"
 init: false
