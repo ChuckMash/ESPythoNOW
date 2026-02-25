@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     iw \
     iproute2 \
     wireless-tools \
-    networkmanager-cli \ #ha testing
+     networkmanager networkmanager-cli net-tools \
     bash
 
 WORKDIR /app
