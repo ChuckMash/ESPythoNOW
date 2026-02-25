@@ -1,5 +1,5 @@
 name: "ESPythoNOW"
-description: "ESP-NOW to MQTT bridge - c"
+description: "ESP-NOW to MQTT bridge - d"
 version: "1.0.0"
 slug: "espythonow"
 init: false
@@ -10,6 +10,7 @@ arch:
   - armhf
   - i386
 
+apparmor: true
 host_network: true
 privileged:
   - NET_ADMIN
