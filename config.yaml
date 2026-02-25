@@ -10,8 +10,11 @@ arch:
   - armhf
   - i386
 host_network: true
-privileged: true
-
+privileged: false
+cap_add:
+  - NET_RAW
+  - NET_ADMIN
+  
 options:
   interface: "wlan1"
   channel: 8
