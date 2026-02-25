@@ -1,5 +1,5 @@
 name: "ESPythoNOW"
-description: "ESP-NOW to MQTT bridge - b"
+description: "ESP-NOW to MQTT bridge - c"
 version: "1.0.0"
 slug: "espythonow"
 init: false
@@ -10,34 +10,11 @@ arch:
   - armhf
   - i386
 
-
-#host_network: true
-#apparmor: true
-#host_dbus: true
+host_network: true
 privileged:
   - NET_ADMIN
   - NET_RAW
-  #- SYS_ADMIN
   
-#host_network: true
-#privileged: true
-#host_dbus: true
-
-#cap_add:
-#  - NET_RAW
-#  - NET_ADMIN
-
-#apparmor: true
-#privileged:
-#  - NET_ADMIN
-#  - NET_RAW
-#  - SYS_ADMIN
-#host_network: true
-
-
-
-
-
 options:
   interface: "wlan1"
   channel: 8
