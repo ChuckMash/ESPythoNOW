@@ -9,12 +9,17 @@ arch:
   - armv7
   - armhf
   - i386
-host_network: true
-privileged: true
-cap_add:
-  - NET_RAW
+#host_network: true
+#privileged: true
+#cap_add:
+#  - NET_RAW
+#  - NET_ADMIN
+
+privileged:
   - NET_ADMIN
-  
+  - NET_RAW
+host_network: true
+
 options:
   interface: "wlan1"
   channel: 8
