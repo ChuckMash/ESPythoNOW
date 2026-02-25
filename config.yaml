@@ -15,6 +15,7 @@ arch:
 #  - NET_RAW
 #  - NET_ADMIN
 
+apparmor: false
 privileged:
   - NET_ADMIN
   - NET_RAW
