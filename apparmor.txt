@@ -3,27 +3,33 @@
 profile espythonow flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
-  # Allow network operations
-  network,
-
-  # Allow raw socket access
+  # Capabilities
   capability net_raw,
   capability net_admin,
 
-  # Allow reading interface info
-  /sys/class/net/** r,
-  /proc/net/** r,
+  # File access
+  file,
 
-  # Allow Python and app files
+  # Network
+  network,
+
+  # Python runtime
   /usr/local/bin/python3* ix,
-  /app/** r,
-  /app/ESPythoNOW.py r,
+  /usr/local/lib/python3*/** mr,
+  /usr/local/lib/** mr,
+  /usr/lib/** mr,
+  /lib/** mr,
+
+  # App
+  /app/** rix,
   /data/options.json r,
 
-  # Allow pcap
-  /usr/lib/libpcap* mr,
+  # Proc and sys for interface info
+  /proc/** r,
+  /sys/** r,
 
-  # Deny everything else
-  deny @{HOME}/** w,
-  deny /etc/** w,
+  # Temp and runtime
+  /tmp/** rw,
+  /run/** rw,
+  /dev/** rw,
 }
