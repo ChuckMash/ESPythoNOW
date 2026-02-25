@@ -9,19 +9,28 @@ arch:
   - armv7
   - armhf
   - i386
-#host_network: true
-#privileged: true
+
+
+
+  
+host_network: true
+privileged: true
+host_dbus: true
+
 #cap_add:
 #  - NET_RAW
 #  - NET_ADMIN
 
-apparmor: true
-privileged:
-  - NET_ADMIN
-  - NET_RAW
-  - SYS_ADMIN
-host_network: true
-host_dbus: true
+#apparmor: true
+#privileged:
+#  - NET_ADMIN
+#  - NET_RAW
+#  - SYS_ADMIN
+#host_network: true
+
+
+
+
 
 options:
   interface: "wlan1"
