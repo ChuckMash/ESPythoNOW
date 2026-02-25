@@ -762,7 +762,30 @@ def main():
   parser.add_argument('-mqack',  '--mqtt_ack',         required=False, default=False, type=s2b,   help='Publish ACK (messsage received) to confirm message delivery on send (default: False)')
   parser.add_argument('-z',      '--speed_test',       required=False, default="",                help='Execute 30 second sending speed test, set packet size: --speed_test 30,250,FF:FF:FF:FF:FF:FF (seconds, message size, address)')
 
-  args = parser.parse_args()
+  #args = parser.parse_args()
+
+  #HA testing
+  import json
+  import os
+  from types import SimpleNamespace
+
+  OPTIONS_PATH = "/data/options.json"
+
+  if os.path.exists(OPTIONS_PATH):
+    print("[ESPythoNOW] Loading config from /data/options.json", flush=True)
+    with open(OPTIONS_PATH) as f:
+      options = json.load(f)
+    args = SimpleNamespace(**{
+      k: v
+      for k, v in options.items()
+      if v is not None and v != ""
+    })
+  else:
+    args = parser.parse_args()
+
+
+
+
 
   if args.mqtt_host:
     mqtt_config = {
