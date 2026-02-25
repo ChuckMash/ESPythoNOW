@@ -16,7 +16,6 @@ RUN apk add --no-cache \
     iw \
     iproute2 \
     wireless-tools \
-     networkmanager networkmanager-cli \
     bash
 
 WORKDIR /app
