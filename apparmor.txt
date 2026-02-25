@@ -3,33 +3,7 @@
 profile espythonow flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
-  # Capabilities
-  capability net_raw,
-  capability net_admin,
-
-  # File access
+  capability,
   file,
-
-  # Network
   network,
-
-  # Python runtime
-  /usr/local/bin/python3* ix,
-  /usr/local/lib/python3*/** mr,
-  /usr/local/lib/** mr,
-  /usr/lib/** mr,
-  /lib/** mr,
-
-  # App
-  /app/** rix,
-  /data/options.json r,
-
-  # Proc and sys for interface info
-  /proc/** r,
-  /sys/** r,
-
-  # Temp and runtime
-  /tmp/** rw,
-  /run/** rw,
-  /dev/** rw,
 }
