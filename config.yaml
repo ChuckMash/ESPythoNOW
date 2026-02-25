@@ -56,7 +56,7 @@ schema:
   block_on_send: bool
   primary_key: str?
   local_key: str?
-  mqtt_host: str
+  mqtt_host: str?
   mqtt_port: int
   mqtt_username: str?
   mqtt_password: str?
