@@ -1,0 +1,29 @@
+#include <tunables/global>
+
+profile espythonow flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Allow network operations
+  network,
+
+  # Allow raw socket access
+  capability net_raw,
+  capability net_admin,
+
+  # Allow reading interface info
+  /sys/class/net/** r,
+  /proc/net/** r,
+
+  # Allow Python and app files
+  /usr/local/bin/python3* ix,
+  /app/** r,
+  /app/ESPythoNOW.py r,
+  /data/options.json r,
+
+  # Allow pcap
+  /usr/lib/libpcap* mr,
+
+  # Deny everything else
+  deny @{HOME}/** w,
+  deny /etc/** w,
+}
