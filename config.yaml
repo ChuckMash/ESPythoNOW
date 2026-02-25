@@ -17,7 +17,7 @@ host_dbus: true
 privileged:
   - NET_ADMIN
   - NET_RAW
-  #- SYS_ADMIN
+  - SYS_ADMIN
   
 #host_network: true
 #privileged: true
