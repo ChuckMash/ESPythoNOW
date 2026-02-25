@@ -785,9 +785,9 @@ def main():
 
 
 
+  #if args.mqtt_host:
 
-
-  if args.mqtt_host:
+  if hasattr(args, 'mqtt_host') and args.mqtt_host:
     mqtt_config = {
       "ip":        args.mqtt_host,
       "port":      args.mqtt_port,
