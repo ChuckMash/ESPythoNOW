@@ -764,18 +764,25 @@ def main():
 
   #args = parser.parse_args()
 
+
+
+  
   #HA testing
   import json
   import os
   from types import SimpleNamespace
 
+  class Options(SimpleNamespace):
+    def __getattr__(self, name):
+        return None
+      
   OPTIONS_PATH = "/data/options.json"
 
   if os.path.exists(OPTIONS_PATH):
     print("[ESPythoNOW] Loading config from /data/options.json", flush=True)
     with open(OPTIONS_PATH) as f:
       options = json.load(f)
-    args = SimpleNamespace(**{
+    args = Options(**{
       k: v
       for k, v in options.items()
       if v is not None and v != ""
@@ -784,10 +791,7 @@ def main():
     args = parser.parse_args()
 
 
-
-  #if args.mqtt_host:
-
-  if hasattr(args, 'mqtt_host') and args.mqtt_host:
+  if args.mqtt_host:
     mqtt_config = {
       "ip":        args.mqtt_host,
       "port":      args.mqtt_port,
