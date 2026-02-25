@@ -15,11 +15,12 @@ arch:
 #  - NET_RAW
 #  - NET_ADMIN
 
-apparmor: false
+apparmor: true
 privileged:
   - NET_ADMIN
   - NET_RAW
 host_network: true
+host_dbus: true
 
 options:
   interface: "wlan1"
