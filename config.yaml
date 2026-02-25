@@ -11,11 +11,17 @@ arch:
   - i386
 
 
-
-  
 host_network: true
-privileged: true
+apparmor: true
 host_dbus: true
+privileged:
+  - NET_ADMIN
+  - NET_RAW
+  #- SYS_ADMIN
+  
+#host_network: true
+#privileged: true
+#host_dbus: true
 
 #cap_add:
 #  - NET_RAW
