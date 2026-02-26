@@ -766,6 +766,9 @@ def main():
 
 
 
+
+
+  
   
   #HA testing
   import json
@@ -787,12 +790,28 @@ def main():
       for k, v in options.items()
       if v is not None and v != ""
     })
-    
+
+
+  import urllib.request
+  token = os.environ.get("SUPERVISOR_TOKEN", "")
+  req = urllib.request.Request(
+      "http://supervisor/services/mqtt",
+      headers={"Authorization": f"Bearer {token}"}
+  )
+  with urllib.request.urlopen(req) as r:
+    data = json.loads(r.read()).get("data", {})
+
+  print(data)
+
+
+
+
+
+
+  
   else:
     args = parser.parse_args()
-
-  print(args)
-
+  
   if args.mqtt_host:
     mqtt_config = {
       "ip":        args.mqtt_host,
