@@ -15,8 +15,8 @@ host_network: true
 privileged:
   - NET_ADMIN
   - NET_RAW
-services:
-  - mqtt:want
+#services:
+#  - mqtt:want
 options:
   interface: "wlan1"
   channel: 8
