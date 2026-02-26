@@ -792,16 +792,16 @@ def main():
     })
 
 
-  import urllib.request
-  token = os.environ.get("SUPERVISOR_TOKEN", "")
-  req = urllib.request.Request(
+    import urllib.request
+    token = os.environ.get("SUPERVISOR_TOKEN", "")
+    req = urllib.request.Request(
       "http://supervisor/services/mqtt",
       headers={"Authorization": f"Bearer {token}"}
-  )
-  with urllib.request.urlopen(req) as r:
-    data = json.loads(r.read()).get("data", {})
+    )
+    with urllib.request.urlopen(req) as r:
+      data = json.loads(r.read()).get("data", {})
 
-  print(data)
+    print(data)
 
 
 
