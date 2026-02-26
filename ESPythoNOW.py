@@ -790,7 +790,10 @@ def main():
       for k, v in options.items()
       if v is not None and v != ""
     })
-    """
+
+
+
+    
     # overwrite args with local mqtt, needs work
     import urllib.request
     token = os.environ.get("SUPERVISOR_TOKEN", "")
@@ -805,8 +808,9 @@ def main():
       args.mqtt_username = data['username']
       args.mqtt_password = data['password']
  
-      print(args)
-      """
+
+  
+  
   else:
     args = parser.parse_args()
   
