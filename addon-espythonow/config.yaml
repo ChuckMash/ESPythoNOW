@@ -67,3 +67,6 @@ schema:
   mqtt_hex: bool
   mqtt_json: bool
   mqtt_ack: bool
+
+services:
+  mqtt:want
