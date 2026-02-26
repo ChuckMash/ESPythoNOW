@@ -1,8 +1,1 @@
-#include <tunables/global>
 
-profile espythonow flags=(attach_disconnected,mediate_deleted) {
-  #include <abstractions/base>
-
-  file,
-  network,
-}
