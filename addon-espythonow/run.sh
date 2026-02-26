@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+printenv
+
 if [ -f /data/options.json ]; then
     echo "[ESPythoNOW] Home Assistant mode"
     exec python3 -u /app/ESPythoNOW.py
