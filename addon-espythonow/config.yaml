@@ -10,7 +10,7 @@ arch:
   - armhf
   - i386
 
-apparmor: false
+apparmor: true
 host_network: true
 privileged:
   - NET_ADMIN
