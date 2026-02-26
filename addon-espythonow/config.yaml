@@ -16,7 +16,7 @@ privileged:
   - NET_ADMIN
   - NET_RAW
 services:
-  - mqtt:want
+  - mqtt:need
 options:
   interface: "wlan1"
   channel: 8
