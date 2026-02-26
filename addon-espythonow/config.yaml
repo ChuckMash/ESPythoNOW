@@ -1,0 +1,69 @@
+name: "ESPythoNOW"
+description: "ESP-NOW to MQTT bridge - f"
+version: "1.0.0"
+slug: "espythonow"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armv7
+  - armhf
+  - i386
+
+apparmor: true
+host_network: true
+privileged:
+  - NET_ADMIN
+  - NET_RAW
+  
+options:
+  interface: "wlan1"
+  channel: 8
+  set_interface: true
+  mtu: 0
+  rate: 0
+  send_raw: false
+  no_wait: false
+  retry_limit: 0
+  repeat: 0
+  accept_broadcast: true
+  accept_all: true
+  accept_ack: false
+  block_on_send: false
+  primary_key: ""
+  local_key: ""
+  mqtt_host: ""
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  mqtt_keepalive: 60
+  mqtt_raw: false
+  mqtt_hex: true
+  mqtt_json: true
+  mqtt_ack: false
+
+schema:
+  interface: str
+  channel: int
+  set_interface: bool
+  mtu: int
+  rate: int
+  send_raw: bool
+  no_wait: bool
+  retry_limit: int
+  repeat: int
+  accept_broadcast: bool
+  accept_all: bool
+  accept_ack: bool
+  block_on_send: bool
+  primary_key: str?
+  local_key: str?
+  mqtt_host: str?
+  mqtt_port: int
+  mqtt_username: str?
+  mqtt_password: str?
+  mqtt_keepalive: int
+  mqtt_raw: bool
+  mqtt_hex: bool
+  mqtt_json: bool
+  mqtt_ack: bool
