@@ -7,7 +7,7 @@ import sys
 import json
 import re
 import subprocess
-
+print(345)
 try:
   from Crypto.Cipher import AES
   HAVE_PYCRYPTODOME = True
