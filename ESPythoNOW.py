@@ -805,11 +805,8 @@ def main():
       args.mqtt_username = data['username']
       args.mqtt_password = data['password']
  
-
-
-
-
-  
+      print(args)
+      
   else:
     args = parser.parse_args()
   
