@@ -787,9 +787,11 @@ def main():
       for k, v in options.items()
       if v is not None and v != ""
     })
+    
   else:
     args = parser.parse_args()
 
+  print(args)
 
   if args.mqtt_host:
     mqtt_config = {
