@@ -795,19 +795,21 @@ def main():
 
     
     # overwrite args with local mqtt, needs work
-    import urllib.request
-    token = os.environ.get("SUPERVISOR_TOKEN", "")
-    req = urllib.request.Request(
-      "http://supervisor/services/mqtt",
-      headers={"Authorization": f"Bearer {token}"}
-    )
-    with urllib.request.urlopen(req) as r:
-      data = json.loads(r.read()).get("data", {})
-      args.mqtt_host = data['host']
-      args.mqtt_port = data['port']
-      args.mqtt_username = data['username']
-      args.mqtt_password = data['password']
- 
+    try:
+      import urllib.request
+      token = os.environ.get("SUPERVISOR_TOKEN", "")
+      req = urllib.request.Request(
+        "http://supervisor/services/mqtt",
+        headers={"Authorization": f"Bearer {token}"}
+      )
+      with urllib.request.urlopen(req) as r:
+        data = json.loads(r.read()).get("data", {})
+        args.mqtt_host = data['host']
+        args.mqtt_port = data['port']
+        args.mqtt_username = data['username']
+        args.mqtt_password = data['password']
+    except Exception as e:
+      print(e)
 
   
   
