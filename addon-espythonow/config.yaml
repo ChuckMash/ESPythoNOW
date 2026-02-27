@@ -12,6 +12,7 @@ arch:
 
 apparmor: true
 host_network: true
+host_dbus: true
 privileged:
   - NET_ADMIN
   - NET_RAW
