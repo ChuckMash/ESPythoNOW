@@ -737,7 +737,7 @@ def main():
 
   parser = argparse.ArgumentParser(description='ESPythoNOW: ESP-NOW for Linux!')
 
-  parser.add_argument('-i',      '--interface',        required=True,  default="wlan1",           help='Dedicated wireless interface (e.g., wlan1)')
+  parser.add_argument('-i',      '--interface',        required=False, default="wlan1",           help='Dedicated wireless interface (e.g., wlan1)')
   parser.add_argument('-c',      '--channel',          required=False, default=0,     type=int,   help='Wireless channel to use')
   parser.add_argument('-s',      '--set_interface',    required=False, default=False, type=s2b,   help='ESPythoNOW will try and set monitor mode and channel')
   parser.add_argument('-M',      '--mtu',              required=False, default=0,     type=int,   help='ESPythoNOW will try and set the MTU for the interface')
