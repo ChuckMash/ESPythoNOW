@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [ -f /data/options.json ]; then
     echo "[ESPythoNOW] Home Assistant mode"    
-    exec python3 -u /app/ESPythoNOW.py
+    exec python3 -u /app/ESPythoNOW.py --config=/data/options.json
     
 else
     echo "[ESPythoNOW] Docker mode"
