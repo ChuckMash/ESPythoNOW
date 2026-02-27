@@ -823,8 +823,9 @@ def main():
     except Exception as e:
       print(e)
 
-    subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True)
-
+    # Disabling home assistant network manager management of this interface
+    subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    
 
 
 
