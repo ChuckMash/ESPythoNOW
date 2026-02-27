@@ -43,6 +43,7 @@ options:
   mqtt_hex: true
   mqtt_json: true
   mqtt_ack: false
+  mqtt_ha: true
 
 schema:
   interface: str
@@ -69,3 +70,4 @@ schema:
   mqtt_hex: bool
   mqtt_json: bool
   mqtt_ack: bool
+  mqtt_ha: bool
