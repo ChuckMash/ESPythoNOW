@@ -71,3 +71,6 @@ configuration:
   mqtt_ack:
     name: Publish ACK
     description: Publish ACK delivery confirmations to MQTT when a sent message is acknowledged by the receiving device.
+  mqtt_ha:
+    name: Home Assistant MQTT
+    description: Set True to automatically connect to internal home assistant MQTT broker. False to use MQTT broker details above.
