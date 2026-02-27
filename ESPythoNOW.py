@@ -820,6 +820,8 @@ def main():
       except Exception as e:
         print(e)
 
+  print(args)
+  
   # Construct the MQTT config
   if args.mqtt_host:
     mqtt_config = {
