@@ -794,7 +794,9 @@ def main():
 
   print(1,args.config)
   OPTIONS_PATH = args.config
+  OPTIONS_PATH = "/data/options.json"
 
+  
   if os.path.exists(OPTIONS_PATH):
     print("[ESPythoNOW] Loading config from /data/options.json", flush=True)
     with open(OPTIONS_PATH) as f:
