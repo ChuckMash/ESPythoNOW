@@ -768,6 +768,12 @@ def main():
 
 
 
+
+
+
+
+  
+
   
   
   #HA testing
@@ -816,18 +822,20 @@ def main():
         args.mqtt_password = data['password']
     except Exception as e:
       print(e)
-    """
-    subprocess.run([
-        'dbus-send', '--system',
-        '--dest=org.freedesktop.NetworkManager',
-        '--type=method_call',
-        f'/org/freedesktop/NetworkManager/Devices/{args.interface}',
-        'org.freedesktop.DBus.Properties.Set',
-        'string:org.freedesktop.NetworkManager.Device',
-        'string:Managed',
-        'variant:boolean:false'
-    ], check=True)  
-  """
+
+    subprocess.run(['nmcli', 'device', 'set', args.interface, 'managed', 'no'], check=True)
+
+
+
+
+
+
+
+
+
+
+  
+  
   else:
     args = parser.parse_args()
   
