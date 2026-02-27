@@ -773,9 +773,6 @@ def main():
 
 
 
-  # Disabling home assistant network manager management of this interface
-  if args.homeassistant:
-    subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 
   # Local config file instead of other CLI arguments
@@ -820,7 +817,9 @@ def main():
       except Exception as e:
         print(e)
 
-  print(args)
+  # Disabling home assistant network manager management of this interface
+  if args.homeassistant:
+    subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
   
   # Construct the MQTT config
   if args.mqtt_host:
