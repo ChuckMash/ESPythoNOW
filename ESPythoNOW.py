@@ -7,7 +7,7 @@ import sys
 import json
 import re
 import subprocess
-print(345)
+
 try:
   from Crypto.Cipher import AES
   HAVE_PYCRYPTODOME = True
@@ -19,6 +19,8 @@ try:
   HAVE_PAHO = True
 except:
   HAVE_PAHO = False
+
+
 
 
 
@@ -761,10 +763,9 @@ def main():
   parser.add_argument('-mqjson', '--mqtt_json',        required=False, default=True,  type=s2b,   help='Publish JSON-formatted data to MQTT, if decoder exists. (default: True)')
   parser.add_argument('-mqack',  '--mqtt_ack',         required=False, default=False, type=s2b,   help='Publish ACK (messsage received) to confirm message delivery on send (default: False)')
   parser.add_argument('-z',      '--speed_test',       required=False, default="",                help='Execute 30 second sending speed test, set packet size: --speed_test 30,250,FF:FF:FF:FF:FF:FF (seconds, message size, address)')
+  parser.add_argument('-C',      '--config',           required=False, default="",                help='JSON config for all CLI arguments')
 
-  #args = parser.parse_args()
-
-
+  args = parser.parse_args()
 
 
 
@@ -791,7 +792,7 @@ def main():
     def __getattr__(self, name):
         return None
       
-  OPTIONS_PATH = "/data/options.json"
+  OPTIONS_PATH = args.config
 
   if os.path.exists(OPTIONS_PATH):
     print("[ESPythoNOW] Loading config from /data/options.json", flush=True)
@@ -901,6 +902,7 @@ def main():
 
 
   
+  # Wait for exit  
   signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
   try:
     signal.pause()
