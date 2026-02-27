@@ -823,7 +823,7 @@ def main():
     except Exception as e:
       print(e)
 
-    subprocess.run(['nmcli', 'device', 'set', args.interface, 'managed', 'no'], check=True)
+    subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True)
 
 
 
