@@ -728,6 +728,7 @@ decoders = {
 def main():
   import argparse
   import signal
+  import os
 
   def s2b(v): return True if v.lower() in ('yes', 'true', 't', 'y', '1') else False
 
@@ -763,87 +764,63 @@ def main():
   parser.add_argument('-mqjson', '--mqtt_json',        required=False, default=True,  type=s2b,   help='Publish JSON-formatted data to MQTT, if decoder exists. (default: True)')
   parser.add_argument('-mqack',  '--mqtt_ack',         required=False, default=False, type=s2b,   help='Publish ACK (messsage received) to confirm message delivery on send (default: False)')
   parser.add_argument('-z',      '--speed_test',       required=False, default="",                help='Execute 30 second sending speed test, set packet size: --speed_test 30,250,FF:FF:FF:FF:FF:FF (seconds, message size, address)')
+
   parser.add_argument('-C',      '--config',           required=False, default="",                help='JSON config for all CLI arguments')
+  parser.add_argument('-ha',     '--homeassistant',    required=False, default=False, type=s2b,   help='Is home assistant addon')
+  parser.add_argument('-mqha',   '--mqtt_ha',          required=False, default=True,  type=s2b,   help='Connect to home assistant mqtt server internally')
 
   args = parser.parse_args()
 
 
 
-
-
-
-
-  
-
-  
-  
-  #HA testing
-
-  #      # Disable managed mode
-  #    nmcli device set ${INTERFACE} managed no
-
-
-
-  import json
-  import os
-  from types import SimpleNamespace
-
-  class Options(SimpleNamespace):
-    def __getattr__(self, name):
-        return None
-
-  print(1,args.config)
-  OPTIONS_PATH = args.config
-  #OPTIONS_PATH = "/data/options.json"
-
-  
-  if os.path.exists(OPTIONS_PATH):
-    print("[ESPythoNOW] Loading config from /data/options.json", flush=True)
-    with open(OPTIONS_PATH) as f:
-      options = json.load(f)
-    args = Options(**{
-      k: v
-      for k, v in options.items()
-      if v is not None and v != ""
-    })
-
-
-
-    
-    # overwrite args with local mqtt, needs work
-    try:
-      import urllib.request
-      token = os.environ.get("SUPERVISOR_TOKEN", "")
-      req = urllib.request.Request(
-        "http://supervisor/services/mqtt",
-        headers={"Authorization": f"Bearer {token}"}
-      )
-      with urllib.request.urlopen(req) as r:
-        data = json.loads(r.read()).get("data", {})
-        args.mqtt_host = data['host']
-        args.mqtt_port = data['port']
-        args.mqtt_username = data['username']
-        args.mqtt_password = data['password']
-    except Exception as e:
-      print(e)
-
-    # Disabling home assistant network manager management of this interface
+  # Disabling home assistant network manager management of this interface
+  if args.homeassistant:
     subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    
 
 
+  # Local config file instead of other CLI arguments
+  if os.path.exists(args.config):
+    import os
+    import json
+    from types import SimpleNamespace
+    import urllib.request
 
+    # Get Config data and override with CLI args
+    if args.config and os.path.exists(args.config):  # If a config file has been provided, and it exists
+      with open(args.config) as f:                   # Open config file
+        config = json.load(f)                        # Load config file
 
+      explicitly_set = {                             # Create list of all explicitly set arguments, which will override the config file
+        action.dest                                  # the argument name e.g. "interface"
+        for action in parser._actions                # loop over all defined arguments
+        for opt in action.option_strings             # e.g. ["-i", "--interface"]
+        if any(arg == opt or arg.startswith(opt + "=") for arg in sys.argv)
+      }
 
+      for key, value in config.items():              # Override args with explicitly set CLI values
+        if key not in explicitly_set and value not in (None, ""):
+          setattr(args, key, value)
 
+    # Quit if minimum configuration is not met
+    if not args.interface:
+      print("Interface must be specified")
+      quit()
 
+    # If homeassistant flag set, and if use internal MQTT server enabled
+    if args.homeassistant and args.mqtt_ha:
+      try:
+        token = os.environ.get("SUPERVISOR_TOKEN", "")
+        req = urllib.request.Request("http://supervisor/services/mqtt", headers={"Authorization": f"Bearer {token}"})
+        with urllib.request.urlopen(req) as r:
+          data               = json.loads(r.read()).get("data", {})
+          args.mqtt_host     = data['host']
+          args.mqtt_port     = data['port']
+          args.mqtt_username = data['username']
+          args.mqtt_password = data['password']
+      except Exception as e:
+        print(e)
 
-
-  
-  
-  else:
-    args = parser.parse_args()
-  
+  # Construct the MQTT config
   if args.mqtt_host:
     mqtt_config = {
       "ip":        args.mqtt_host,
@@ -904,8 +881,8 @@ def main():
   espnow.start()
 
 
-  
-  # Wait for exit  
+
+  # Wait for exit
   signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
   try:
     signal.pause()
