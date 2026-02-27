@@ -3,7 +3,12 @@ set -euo pipefail
 
 if [ -f /data/options.json ]; then
     echo "[ESPythoNOW] Home Assistant mode"
+
+    # Disable managed mode
+    nmcli device set ${INTERFACE} managed no
+    
     exec python3 -u /app/ESPythoNOW.py
+    
 else
     echo "[ESPythoNOW] Docker mode"
     exec python3 -u /app/ESPythoNOW.py \
