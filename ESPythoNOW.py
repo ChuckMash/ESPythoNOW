@@ -794,7 +794,7 @@ def main():
 
   print(1,args.config)
   OPTIONS_PATH = args.config
-  OPTIONS_PATH = "/data/options.json"
+  #OPTIONS_PATH = "/data/options.json"
 
   
   if os.path.exists(OPTIONS_PATH):
