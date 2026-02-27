@@ -791,7 +791,8 @@ def main():
   class Options(SimpleNamespace):
     def __getattr__(self, name):
         return None
-      
+
+  print(1,args.config)
   OPTIONS_PATH = args.config
 
   if os.path.exists(OPTIONS_PATH):
