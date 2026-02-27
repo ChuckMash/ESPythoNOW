@@ -2,11 +2,7 @@
 set -euo pipefail
 
 if [ -f /data/options.json ]; then
-    echo "[ESPythoNOW] Home Assistant mode"
-
-    # Disable managed mode
-    nmcli device set ${INTERFACE} managed no
-    
+    echo "[ESPythoNOW] Home Assistant mode"    
     exec python3 -u /app/ESPythoNOW.py
     
 else
