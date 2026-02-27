@@ -771,6 +771,12 @@ def main():
   
   
   #HA testing
+
+  #      # Disable managed mode
+  #    nmcli device set ${INTERFACE} managed no
+
+
+
   import json
   import os
   from types import SimpleNamespace
@@ -810,9 +816,18 @@ def main():
         args.mqtt_password = data['password']
     except Exception as e:
       print(e)
-
-  
-  
+    """
+    subprocess.run([
+        'dbus-send', '--system',
+        '--dest=org.freedesktop.NetworkManager',
+        '--type=method_call',
+        f'/org/freedesktop/NetworkManager/Devices/{args.interface}',
+        'org.freedesktop.DBus.Properties.Set',
+        'string:org.freedesktop.NetworkManager.Device',
+        'string:Managed',
+        'variant:boolean:false'
+    ], check=True)  
+  """
   else:
     args = parser.parse_args()
   
