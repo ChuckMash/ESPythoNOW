@@ -836,8 +836,16 @@ def main():
 
     quit()
 
-  # Disabling home assistant network manager management of this interface
+  # Sanity Checks for being run as a Home Assistant Addon
   if args.homeassistant:
+
+    # Check if interface has an IP, making it disqualified from use
+    interface_ip = (r := os.popen(f'ip -4 -o addr show {args.interface}').read().split()) and r[3].split('/')[0]
+    if interface_ip:
+      print(f"{args.interface} is in use. ({interface_ip}) and is disqualified from use until it is freed")
+      quit()
+
+    # Disabling home assistant network manager management of this interface
     subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
   # Construct the MQTT config
