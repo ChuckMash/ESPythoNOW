@@ -62,13 +62,14 @@ schema:
   block_on_send: bool
   primary_key: password?
   local_key: password?
-  mqtt_host: str?
-  mqtt_port: int
-  mqtt_username: str?
-  mqtt_password: password?
-  mqtt_keepalive: int
-  mqtt_raw: bool
-  mqtt_hex: bool
-  mqtt_json: bool
-  mqtt_ack: bool
-  mqtt_ha: bool
+  mqtt:
+    mqtt_host: str?
+    mqtt_port: int
+    mqtt_username: str?
+    mqtt_password: password?
+    mqtt_keepalive: int
+    mqtt_raw: bool
+    mqtt_hex: bool
+    mqtt_json: bool
+    mqtt_ack: bool
+    mqtt_ha: bool
