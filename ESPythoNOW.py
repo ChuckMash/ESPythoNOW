@@ -131,7 +131,7 @@ class ESPythoNow:
       print(f"{interface} already configured")
       return
 
-    print(f"Setting {interface} for monitor mode and channel {channel}")
+    print(f"Setting {interface} for monitor mode and channel {channel}\n")
 
     methods = [[], []]
 
