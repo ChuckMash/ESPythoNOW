@@ -1,7 +1,7 @@
 configuration:
   interface:
     name: Wireless Interface
-    description: Dedicated wireless interface for ESP-NOW (e.g. wlan1). Must support monitor mode. A separate dedicated interface is strongly recommended.
+    description: Dedicated wireless interface for ESP-NOW (e.g. wlan1). Must support monitor mode. An UNUSED wireless interface is required. DO NOT SET INTERFACE IF IN USE BY HOME ASSISTANT
   channel:
     name: Channel
     description: WiFi channel to listen and operate on (1-13). Must match the channel used by your ESP-NOW devices.
