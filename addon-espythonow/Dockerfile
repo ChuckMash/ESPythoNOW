@@ -2,8 +2,8 @@ FROM python:3.11-alpine AS build
 RUN apk add --no-cache gcc musl-dev libpcap-dev git linux-headers
 WORKDIR /app
 
-ADD https://api.github.com/repos/ChuckMash/ESPythoNOW/commits/test /dev/null
-RUN git clone --depth 1 --branch test https://github.com/ChuckMash/ESPythoNOW.git /tmp/repo && \
+ADD https://api.github.com/repos/ChuckMash/ESPythoNOW/commits/main_homeassistant /dev/null
+RUN git clone --depth 1 --branch main_homeassistant https://github.com/ChuckMash/ESPythoNOW.git /tmp/repo && \
     cp /tmp/repo/ESPythoNOW.py /tmp/repo/requirements.txt /app/ && \
     rm -rf /tmp/repo
 
