@@ -67,6 +67,7 @@ schema:
     primary_key: password?
     local_key: password?
   mqtt:
+    mqtt_ha: bool
     mqtt_host: str?
     mqtt_port: int
     mqtt_username: str?
@@ -76,4 +77,3 @@ schema:
     mqtt_hex: bool
     mqtt_json: bool
     mqtt_ack: bool
-    mqtt_ha: bool
