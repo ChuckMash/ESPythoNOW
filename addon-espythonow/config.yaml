@@ -19,7 +19,7 @@ privileged:
 services:
   - mqtt:want
 options:
-  interface: "wlan1"
+  interface: ""
   channel: 8
   advanced:
     set_interface: true
