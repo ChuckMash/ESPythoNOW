@@ -786,13 +786,8 @@ def main():
     if args.config and os.path.exists(args.config):  # If a config file has been provided, and it exists
       with open(args.config) as f:                   # Open config file
         config = json.load(f)                        # Load config file
-        print(config)
-        # Flatten dict
-        config = {**{k: v for k, v in config.items() if not isinstance(v, dict)}, **{k: v for d in config.values() if isinstance(d, dict) for k, v in d.items()}}
-        print()
-        print(config)
-        print()
-
+        config = {**{k: v for k, v in config.items() if not isinstance(v, dict)}, **{k: v for d in config.values() if isinstance(d, dict) for k, v in d.items()}} # Flatten dict
+        
       explicitly_set = {                             # Create list of all explicitly set arguments, which will override the config file
         action.dest                                  # the argument name e.g. "interface"
         for action in parser._actions                # loop over all defined arguments
