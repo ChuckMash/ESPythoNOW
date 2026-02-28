@@ -34,16 +34,17 @@ options:
   block_on_send: false
   primary_key: ""
   local_key: ""
-  mqtt_host: ""
-  mqtt_port: 1883
-  mqtt_username: ""
-  mqtt_password: ""
-  mqtt_keepalive: 60
-  mqtt_raw: false
-  mqtt_hex: true
-  mqtt_json: true
-  mqtt_ack: false
-  mqtt_ha: true
+  mqtt:
+    mqtt_host: ""
+    mqtt_port: 1883
+    mqtt_username: ""
+    mqtt_password: ""
+    mqtt_keepalive: 60
+    mqtt_raw: false
+    mqtt_hex: true
+    mqtt_json: true
+    mqtt_ack: false
+    mqtt_ha: true
 
 schema:
   interface: str
@@ -59,8 +60,8 @@ schema:
   accept_all: bool
   accept_ack: bool
   block_on_send: bool
-  primary_key: str?
-  local_key: str?
+  primary_key: password?
+  local_key: password?
   mqtt_host: str?
   mqtt_port: int
   mqtt_username: str?
