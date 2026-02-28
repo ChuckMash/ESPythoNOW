@@ -54,14 +54,8 @@ configuration:
     name: MQTT Options
     fields:
       mqtt_ha:
-        name: Home Assistant MQTT
-          t:
-            name: "Home Assistant MQTT Server"
-            description: test1
-          f:
-            name: "External MQTT Server (below)"
-            description: test1
-      
+        name: Use Home Assistant MQTT
+        description: True to use Home Assistant Broker, False to use external Broker with details below.
       mqtt_host:
         name: MQTT Host
         description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing.
