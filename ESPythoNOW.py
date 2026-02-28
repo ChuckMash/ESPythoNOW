@@ -878,8 +878,10 @@ def main():
     espnow.start()                             # Listen for a response
     time.sleep(15)                             # Wait for a response
 
-
-
+  espnow.prepare()
+  
+  print("{espnow.interface} {espnow.local_mac}")
+  
   espnow.start()
 
 
