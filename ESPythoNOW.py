@@ -880,7 +880,7 @@ def main():
 
   espnow.prepare()
   
-  print("{espnow.interface} {espnow.local_mac}")
+  print(f"{espnow.interface} {espnow.local_mac}")
   
   espnow.start()
 
