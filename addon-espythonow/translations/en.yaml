@@ -13,16 +13,16 @@ configuration:
         description: Automatically configure the interface into monitor mode and set the channel on startup. Disable if you manage the interface yourself.
       mtu:
         name: MTU Override
-        description: Set the MTU for the interface. Use 0 to leave unchanged.
+        description: Set the MTU for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset. (UNSTABLE)
       rate:
         name: PHY Rate Override
-        description: Set the PHY rate for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset.
+        description: Set the PHY rate for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset. (UNSTABLE)
       send_raw:
         name: Send Raw Packets
-        description: Send using raw packets instead of the default method. Can be faster but may be unstable depending on your driver and chipset.
+        description: Send using raw packets instead of the default method. Performance may depend on driver and chipset. (UNSTABLE)
       no_wait:
         name: No Wait on Send
-        description: Don't wait for ACK confirmation when sending unicast messages. Speeds up sending but disables L2 retry.
+        description: Don't wait for ACK confirmation when sending UNICAST messages. Speeds up sending but disables L2 retry.
       retry_limit:
         name: L2 Retry Limit
         description: Set the L2 retry limit for sending. Use 0 for the driver default.
@@ -30,11 +30,11 @@ configuration:
         name: Packet Repeat Count
         description: Force packet retransmission N times on send. Use 0 to disable.
       accept_broadcast:
-        name: Accept Broadcast
-        description: Accept broadcast ESP-NOW messages intended for all devices.
+        name: Accept Broadcast Messages
+        description: Accept ESP-NOW broadcast messages.
       accept_all:
         name: Accept All Messages
-        description: Accept all ESP-NOW messages regardless of the intended destination MAC address. Useful for sniffing all nearby ESP-NOW traffic.
+        description: Accept ESP-NOW messages regardless of the intended destination.
       accept_ack:
         name: Accept ACK Callbacks
         description: Execute the receive callback when ACK confirmation packets are received.
