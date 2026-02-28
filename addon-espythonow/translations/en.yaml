@@ -55,7 +55,7 @@ configuration:
     fields:
       mqtt_ha:
         name: Home Assistant MQTT
-        values:
+        fields:
           true:
             name: Home Assistant MQTT Server
           false:
