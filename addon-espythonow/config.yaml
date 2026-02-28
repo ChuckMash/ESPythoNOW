@@ -21,19 +21,21 @@ services:
 options:
   interface: "wlan1"
   channel: 8
-  set_interface: true
-  mtu: 0
-  rate: 0
-  send_raw: false
-  no_wait: false
-  retry_limit: 0
-  repeat: 0
-  accept_broadcast: true
-  accept_all: false
-  accept_ack: false
-  block_on_send: false
-  primary_key: ""
-  local_key: ""
+  advanced:
+    set_interface: true
+    mtu: 0
+    rate: 0
+    send_raw: false
+    no_wait: false
+    retry_limit: 0
+    repeat: 0
+    accept_broadcast: true
+    accept_all: false
+    accept_ack: false
+    block_on_send: false
+  encryption:
+    primary_key: ""
+    local_key: ""
   mqtt:
     mqtt_host: ""
     mqtt_port: 1883
@@ -49,19 +51,21 @@ options:
 schema:
   interface: str
   channel: int
-  set_interface: bool
-  mtu: int
-  rate: int
-  send_raw: bool
-  no_wait: bool
-  retry_limit: int
-  repeat: int
-  accept_broadcast: bool
-  accept_all: bool
-  accept_ack: bool
-  block_on_send: bool
-  primary_key: password?
-  local_key: password?
+  advanced:
+    set_interface: bool
+    mtu: int
+    rate: int
+    send_raw: bool
+    no_wait: bool
+    retry_limit: int
+    repeat: int
+    accept_broadcast: bool
+    accept_all: bool
+    accept_ack: bool
+    block_on_send: bool
+  encryption:
+    primary_key: password?
+    local_key: password?
   mqtt:
     mqtt_host: str?
     mqtt_port: int
