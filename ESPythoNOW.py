@@ -787,7 +787,8 @@ def main():
       with open(args.config) as f:                   # Open config file
         config = json.load(f)                        # Load config file
         print(config)
-        config = {k: v for d in nested.values() for k, v in config.items()} # flatten dict, all items should be unique at a single level
+        # Flatten dict
+        config = {**{k: v for k, v in config.items() if not isinstance(v, dict)}, **{k: v for d in config.values() if isinstance(d, dict) for k, v in d.items()}}
         print()
         print(config)
         print()
