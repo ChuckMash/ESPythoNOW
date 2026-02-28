@@ -53,18 +53,21 @@ configuration:
   mqtt:
     name: MQTT Options
     fields:
+      mqtt_ha:
+        name: Home Assistant MQTT
+        description: Set True to automatically connect to internal Home Assistant MQTT broker. False to use MQTT broker details below.
       mqtt_host:
         name: MQTT Host
-        description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing. The Mosquitto broker add-on can be referenced as core-mosquitto.
+        description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing.
       mqtt_port:
         name: MQTT Port
-        description: MQTT broker port. Default is 1883. Use 8883 for TLS.
+        description: MQTT broker port.
       mqtt_username:
         name: MQTT Username
-        description: Username for MQTT broker authentication. Leave blank if your broker does not require authentication.
+        description: Username for MQTT broker authentication.
       mqtt_password:
         name: MQTT Password
-        description: Password for MQTT broker authentication. Leave blank if your broker does not require authentication.
+        description: Password for MQTT broker authentication.
       mqtt_keepalive:
         name: MQTT Keepalive
         description: MQTT keepalive interval in seconds. Controls how often the client pings the broker to keep the connection alive.
@@ -80,6 +83,3 @@ configuration:
       mqtt_ack:
         name: Publish ACK
         description: Publish ACK delivery confirmations to MQTT when a sent message is acknowledged by the receiving device.
-      mqtt_ha:
-        name: Home Assistant MQTT
-        description: Set True to automatically connect to internal home assistant MQTT broker. False to use MQTT broker details above.
