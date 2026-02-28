@@ -46,7 +46,6 @@ configuration:
     description: 16-character local master key for encrypted ESP-NOW. Leave blank to disable encryption. Must match the key configured on your ESP-NOW devices.
   mqtt:
     name: MQTT Options
-  mqtt:
     mqtt_host:
       name: MQTT Host
       description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing. The Mosquitto broker add-on can be referenced as core-mosquitto.
