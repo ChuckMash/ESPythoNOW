@@ -37,7 +37,7 @@ options:
     primary_key: ""
     local_key: ""
   mqtt:
-    mqtt_ha: "t"
+    mqtt_ha: true
     mqtt_host: ""
     mqtt_port: 1883
     mqtt_username: ""
@@ -67,7 +67,7 @@ schema:
     primary_key: password?
     local_key: password?
   mqtt:
-    mqtt_ha: list(t|f)
+    mqtt_ha: bool
     mqtt_host: str?
     mqtt_port: int
     mqtt_username: str?
