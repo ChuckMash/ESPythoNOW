@@ -738,7 +738,7 @@ def main():
 
   parser = argparse.ArgumentParser(description='ESPythoNOW: ESP-NOW for Linux!')
 
-  parser.add_argument('-i',      '--interface',        required=False, default="wlan1",           help='Dedicated wireless interface (e.g., wlan1)')
+  parser.add_argument('-i',      '--interface',        required=False, default="",                help='Dedicated wireless interface (e.g., wlan1)')
   parser.add_argument('-c',      '--channel',          required=False, default=0,     type=int,   help='Wireless channel to use')
   parser.add_argument('-s',      '--set_interface',    required=False, default=False, type=s2b,   help='ESPythoNOW will try and set monitor mode and channel')
   parser.add_argument('-M',      '--mtu',              required=False, default=0,     type=int,   help='ESPythoNOW will try and set the MTU for the interface')
@@ -787,7 +787,7 @@ def main():
       with open(args.config) as f:                   # Open config file
         config = json.load(f)                        # Load config file
         config = {**{k: v for k, v in config.items() if not isinstance(v, dict)}, **{k: v for d in config.values() if isinstance(d, dict) for k, v in d.items()}} # Flatten dict
-        
+
       explicitly_set = {                             # Create list of all explicitly set arguments, which will override the config file
         action.dest                                  # the argument name e.g. "interface"
         for action in parser._actions                # loop over all defined arguments
@@ -798,11 +798,6 @@ def main():
       for key, value in config.items():              # Override args with explicitly set CLI values
         if key not in explicitly_set and value not in (None, ""):
           setattr(args, key, value)
-
-    # Quit if minimum configuration is not met
-    if not args.interface:
-      print("Interface must be specified")
-      quit()
 
     # If homeassistant flag set, and if use internal MQTT server enabled
     if args.homeassistant and args.mqtt_ha:
@@ -815,13 +810,36 @@ def main():
           args.mqtt_port     = data['port']
           args.mqtt_username = data['username']
           args.mqtt_password = data['password']
-      except Exception as e:
-        print(e)
+      except:
+        print("Unable to get MQTT information from Supervisor. Falling back to configured MQTT settings.")
+
+  # Quit if minimum configuration is not met
+  if not args.interface:
+    print("Interface must be specified.")
+    try:
+      wifi = {i for i in os.listdir('/sys/class/net') if os.path.exists(f'/sys/class/net/{i}/wireless')}
+      ips  = {}
+
+      for line in os.popen('ip -4 -o addr show').readlines():
+        parts = line.split()
+        if parts[1] in wifi:
+          ips[parts[1]] = parts[3].split('/')[0]
+
+      print("Available Interface(s)")
+      [print(f"\t{i}") for i in wifi if i not in ips]
+
+      print("Unavailable Interface(s)")
+      [print(f"\t{i}: {ip}") for i, ip in ips.items()]
+
+    except:
+      pass
+
+    quit()
 
   # Disabling home assistant network manager management of this interface
   if args.homeassistant:
     subprocess.run(['nmcli', '--nocheck', 'device', 'set', args.interface, 'managed', 'no'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-  
+
   # Construct the MQTT config
   if args.mqtt_host:
     mqtt_config = {
@@ -833,7 +851,7 @@ def main():
       "raw":       args.mqtt_raw,
       "hex":       args.mqtt_hex,
       "json":      args.mqtt_json,
-      "ack":      args.mqtt_ack}
+      "ack":       args.mqtt_ack}
   else:
     mqtt_config = {}
 
@@ -879,9 +897,9 @@ def main():
     time.sleep(15)                             # Wait for a response
 
   espnow.prepare()
-  
+
   print(f"{espnow.interface} {espnow.local_mac}")
-  
+
   espnow.start()
 
 
