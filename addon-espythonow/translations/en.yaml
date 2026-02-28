@@ -55,7 +55,10 @@ configuration:
     fields:
       mqtt_ha:
         name: Home Assistant MQTT
-        description: Set True to automatically connect to internal Home Assistant MQTT broker. False to use MQTT broker details below.
+        values:
+          true: Home Assistant MQTT Server
+          false: External MQTT Server
+      
       mqtt_host:
         name: MQTT Host
         description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing.
