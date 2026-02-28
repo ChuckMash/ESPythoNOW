@@ -787,6 +787,10 @@ def main():
       with open(args.config) as f:                   # Open config file
         config = json.load(f)                        # Load config file
         print(config)
+        config = {k: v for d in nested.values() for k, v in config.items()} # flatten dict, all items should be unique at a single level
+        print()
+        print(config)
+        print()
 
       explicitly_set = {                             # Create list of all explicitly set arguments, which will override the config file
         action.dest                                  # the argument name e.g. "interface"
