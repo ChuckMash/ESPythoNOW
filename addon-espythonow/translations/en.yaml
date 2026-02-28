@@ -56,8 +56,8 @@ configuration:
       mqtt_ha:
         name: Home Assistant MQTT
         items:
-          true: "Home Assistant MQTT Server"
-          false: "External MQTT Server (below)"
+          t: "Home Assistant MQTT Server"
+          f: "External MQTT Server (below)"
       
       mqtt_host:
         name: MQTT Host
