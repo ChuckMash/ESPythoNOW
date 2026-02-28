@@ -786,6 +786,7 @@ def main():
     if args.config and os.path.exists(args.config):  # If a config file has been provided, and it exists
       with open(args.config) as f:                   # Open config file
         config = json.load(f)                        # Load config file
+        print(config)
 
       explicitly_set = {                             # Create list of all explicitly set arguments, which will override the config file
         action.dest                                  # the argument name e.g. "interface"
