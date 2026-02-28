@@ -67,7 +67,7 @@ schema:
     primary_key: password?
     local_key: password?
   mqtt:
-    mqtt_ha: "list(true|false)"
+    mqtt_ha: list("true"|"false")
     mqtt_host: str?
     mqtt_port: int
     mqtt_username: str?
