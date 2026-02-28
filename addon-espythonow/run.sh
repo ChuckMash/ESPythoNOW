@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "\n\n"
+echo -e "\n\n"
 
 if [ -f /data/options.json ]; then
     echo "[ESPythoNOW] Home Assistant mode"    
