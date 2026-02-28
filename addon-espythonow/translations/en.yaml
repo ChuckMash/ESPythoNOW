@@ -46,33 +46,34 @@ configuration:
     description: 16-character local master key for encrypted ESP-NOW. Leave blank to disable encryption. Must match the key configured on your ESP-NOW devices.
   mqtt:
     name: MQTT Options
-    mqtt_host:
-      name: MQTT Host
-      description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing. The Mosquitto broker add-on can be referenced as core-mosquitto.
-    mqtt_port:
-      name: MQTT Port
-      description: MQTT broker port. Default is 1883. Use 8883 for TLS.
-    mqtt_username:
-      name: MQTT Username
-      description: Username for MQTT broker authentication. Leave blank if your broker does not require authentication.
-    mqtt_password:
-      name: MQTT Password
-      description: Password for MQTT broker authentication. Leave blank if your broker does not require authentication.
-    mqtt_keepalive:
-      name: MQTT Keepalive
-      description: MQTT keepalive interval in seconds. Controls how often the client pings the broker to keep the connection alive.
-    mqtt_raw:
-      name: Publish Raw Bytes
-      description: Publish the raw bytes payload to MQTT.
-    mqtt_hex:
-      name: Publish Hex
-      description: Publish hex-encoded data to MQTT. Useful for debugging and inspecting raw payloads.
-    mqtt_json:
-      name: Publish JSON
-      description: Publish JSON-formatted data to MQTT if a decoder exists for the received message type.
-    mqtt_ack:
-      name: Publish ACK
-      description: Publish ACK delivery confirmations to MQTT when a sent message is acknowledged by the receiving device.
-    mqtt_ha:
-      name: Home Assistant MQTT
-      description: Set True to automatically connect to internal home assistant MQTT broker. False to use MQTT broker details above.
+    description: MQTT Options
+  mqtt_host:
+    name: MQTT Host
+    description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing. The Mosquitto broker add-on can be referenced as core-mosquitto.
+  mqtt_port:
+    name: MQTT Port
+    description: MQTT broker port. Default is 1883. Use 8883 for TLS.
+  mqtt_username:
+    name: MQTT Username
+    description: Username for MQTT broker authentication. Leave blank if your broker does not require authentication.
+  mqtt_password:
+    name: MQTT Password
+    description: Password for MQTT broker authentication. Leave blank if your broker does not require authentication.
+  mqtt_keepalive:
+    name: MQTT Keepalive
+    description: MQTT keepalive interval in seconds. Controls how often the client pings the broker to keep the connection alive.
+  mqtt_raw:
+    name: Publish Raw Bytes
+    description: Publish the raw bytes payload to MQTT.
+  mqtt_hex:
+    name: Publish Hex
+    description: Publish hex-encoded data to MQTT. Useful for debugging and inspecting raw payloads.
+  mqtt_json:
+    name: Publish JSON
+    description: Publish JSON-formatted data to MQTT if a decoder exists for the received message type.
+  mqtt_ack:
+    name: Publish ACK
+    description: Publish ACK delivery confirmations to MQTT when a sent message is acknowledged by the receiving device.
+  mqtt_ha:
+    name: Home Assistant MQTT
+    description: Set True to automatically connect to internal home assistant MQTT broker. False to use MQTT broker details above.
