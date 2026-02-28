@@ -12,10 +12,10 @@ configuration:
         name: Set Monitor Mode & Channel
         description: Automatically configure the interface into monitor mode and set the channel on startup. Disable if you manage the interface yourself.
       mtu:
-        name: MTU Override
+        name: MTU
         description: Set the MTU for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset. (UNSTABLE)
       rate:
-        name: PHY Rate Override
+        name: PHY Rate
         description: Set the PHY rate for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset. (UNSTABLE)
       send_raw:
         name: Send Raw Packets
@@ -41,6 +41,7 @@ configuration:
       block_on_send:
         name: Block on Send
         description: Block and wait for ACK from the receiving device before continuing after a send operation.
+        
   encryption:
     name: Encryption Options
     fields:
@@ -50,15 +51,16 @@ configuration:
       local_key:
         name: Local Master Key
         description: 16-character local master key for encrypted ESP-NOW.
+        
   mqtt:
     name: MQTT Options
     fields:
       mqtt_ha:
         name: Use Home Assistant MQTT
-        description: True to use Home Assistant Broker, False to use external Broker with details below.
+        description: Enable to use Home Assistant Broker, Disable to use external MQTT Broker with details below.
       mqtt_host:
         name: MQTT Host
-        description: IP address or hostname of your MQTT broker. Leave blank to disable MQTT publishing.
+        description: IP address or hostname of your MQTT Broker.
       mqtt_port:
         name: MQTT Port
         description: MQTT broker port.
@@ -76,7 +78,7 @@ configuration:
         description: Publish the raw bytes payload to MQTT.
       mqtt_hex:
         name: Publish Hex
-        description: Publish hex-encoded data to MQTT. Useful for debugging and inspecting raw payloads.
+        description: Publish hex-encoded data to MQTT. Useful for debugging and inspecting raw payloads
       mqtt_json:
         name: Publish JSON
         description: Publish JSON-formatted data to MQTT if a decoder exists for the received message type.
