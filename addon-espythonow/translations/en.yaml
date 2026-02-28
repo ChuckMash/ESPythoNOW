@@ -55,7 +55,6 @@ configuration:
     fields:
       mqtt_ha:
         name: Home Assistant MQTT
-        fields:
           t:
             name: "Home Assistant MQTT Server"
             description: test1
