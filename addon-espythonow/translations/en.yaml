@@ -5,45 +5,51 @@ configuration:
   channel:
     name: Channel
     description: WiFi channel to listen and operate on (1-13). Must match the channel used by your ESP-NOW devices.
-  set_interface:
-    name: Set Monitor Mode & Channel
-    description: Automatically configure the interface into monitor mode and set the channel on startup. Disable if you manage the interface yourself.
-  mtu:
-    name: MTU Override
-    description: Set the MTU for the interface. Use 0 to leave unchanged.
-  rate:
-    name: PHY Rate Override
-    description: Set the PHY rate for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset.
-  send_raw:
-    name: Send Raw Packets
-    description: Send using raw packets instead of the default method. Can be faster but may be unstable depending on your driver and chipset.
-  no_wait:
-    name: No Wait on Send
-    description: Don't wait for ACK confirmation when sending unicast messages. Speeds up sending but disables L2 retry.
-  retry_limit:
-    name: L2 Retry Limit
-    description: Set the L2 retry limit for sending. Use 0 for the driver default.
-  repeat:
-    name: Packet Repeat Count
-    description: Force packet retransmission N times on send. Use 0 to disable.
-  accept_broadcast:
-    name: Accept Broadcast
-    description: Accept broadcast ESP-NOW messages intended for all devices.
-  accept_all:
-    name: Accept All Messages
-    description: Accept all ESP-NOW messages regardless of the intended destination MAC address. Useful for sniffing all nearby ESP-NOW traffic.
-  accept_ack:
-    name: Accept ACK Callbacks
-    description: Execute the receive callback when ACK confirmation packets are received.
-  block_on_send:
-    name: Block on Send
-    description: Block and wait for ACK from the receiving device before continuing after a send operation.
-  primary_key:
-    name: Primary Master Key
-    description: 16-character primary master key for encrypted ESP-NOW. Leave blank to disable encryption. Always use your own unique key.
-  local_key:
-    name: Local Master Key
-    description: 16-character local master key for encrypted ESP-NOW. Leave blank to disable encryption. Must match the key configured on your ESP-NOW devices.
+  advanced:
+    name: Advanced Options
+    fields:
+      set_interface:
+        name: Set Monitor Mode & Channel
+        description: Automatically configure the interface into monitor mode and set the channel on startup. Disable if you manage the interface yourself.
+      mtu:
+        name: MTU Override
+        description: Set the MTU for the interface. Use 0 to leave unchanged.
+      rate:
+        name: PHY Rate Override
+        description: Set the PHY rate for the interface. Use 0 to leave unchanged. Performance may depend on driver and chipset.
+      send_raw:
+        name: Send Raw Packets
+        description: Send using raw packets instead of the default method. Can be faster but may be unstable depending on your driver and chipset.
+      no_wait:
+        name: No Wait on Send
+        description: Don't wait for ACK confirmation when sending unicast messages. Speeds up sending but disables L2 retry.
+      retry_limit:
+        name: L2 Retry Limit
+        description: Set the L2 retry limit for sending. Use 0 for the driver default.
+      repeat:
+        name: Packet Repeat Count
+        description: Force packet retransmission N times on send. Use 0 to disable.
+      accept_broadcast:
+        name: Accept Broadcast
+        description: Accept broadcast ESP-NOW messages intended for all devices.
+      accept_all:
+        name: Accept All Messages
+        description: Accept all ESP-NOW messages regardless of the intended destination MAC address. Useful for sniffing all nearby ESP-NOW traffic.
+      accept_ack:
+        name: Accept ACK Callbacks
+        description: Execute the receive callback when ACK confirmation packets are received.
+      block_on_send:
+        name: Block on Send
+        description: Block and wait for ACK from the receiving device before continuing after a send operation.
+  encryption:
+    name: Encryption Options
+    fields:
+      primary_key:
+        name: Primary Master Key
+        description: 16-character primary master key for encrypted ESP-NOW.
+      local_key:
+        name: Local Master Key
+        description: 16-character local master key for encrypted ESP-NOW.
   mqtt:
     name: MQTT Options
     fields:
