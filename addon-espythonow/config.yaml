@@ -37,6 +37,7 @@ options:
     primary_key: ""
     local_key: ""
   mqtt:
+    mqtt_ha: "true"
     mqtt_host: ""
     mqtt_port: 1883
     mqtt_username: ""
@@ -46,7 +47,6 @@ options:
     mqtt_hex: true
     mqtt_json: true
     mqtt_ack: false
-    mqtt_ha: true
 
 schema:
   interface: str
