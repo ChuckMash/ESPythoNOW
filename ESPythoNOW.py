@@ -253,8 +253,13 @@ class ESPythoNow:
         print("Error! paho-mqtt missing, MQTT can not be enabled.")
         self.use_mqtt = False
       else:
+
+        if "base_topic" in self.mqtt_config and self.mqtt_config["base_topic"]:
+          self.mqtt_topic_base  = self.mqtt_config["base_topic"]
+        else:
+          self.mqtt_topic_base  = f"ESPythoNOW-{self.local_mac}"
+
         self.mqtt_client_id     = f"ESPythoNOW-{self.local_mac}"
-        self.mqtt_topic_base    = f"ESPythoNOW-{self.local_mac}"
         self.mqtt_topic_send    = self.mqtt_topic_base+"/send"
         self.mqtt_broker_ip     = self.mqtt_config.get("ip",        None)  # MQTT broker IP, hostname not supported?
         self.mqtt_broker_port   = self.mqtt_config.get("port",      1883)  # MQTT broker port, default to 1883
@@ -769,6 +774,8 @@ def main():
   parser.add_argument('-mqhex',  '--mqtt_hex',         required=False, default=True,  type=s2b,   help='Publish hex-encoded data to MQTT (default: True)')
   parser.add_argument('-mqjson', '--mqtt_json',        required=False, default=True,  type=s2b,   help='Publish JSON-formatted data to MQTT, if decoder exists. (default: True)')
   parser.add_argument('-mqack',  '--mqtt_ack',         required=False, default=False, type=s2b,   help='Publish ACK (messsage received) to confirm message delivery on send (default: False)')
+  parser.add_argument('-mqbt',   '--mqtt_base_topic',  required=False, default=None,              help='The base topic ESPythoNOW will use for subscribe/publish')
+
   parser.add_argument('-z',      '--speed_test',       required=False, default="",                help='Execute 30 second sending speed test, set packet size: --speed_test 30,250,FF:FF:FF:FF:FF:FF (seconds, message size, address)')
 
   parser.add_argument('-C',      '--config',           required=False, default="",                help='JSON config for all CLI arguments')
@@ -857,15 +864,16 @@ def main():
   # Construct the MQTT config
   if args.mqtt_host:
     mqtt_config = {
-      "ip":        args.mqtt_host,
-      "port":      args.mqtt_port,
-      "username":  args.mqtt_username,
-      "password":  args.mqtt_password,
-      "keepalive": args.mqtt_keepalive,
-      "raw":       args.mqtt_raw,
-      "hex":       args.mqtt_hex,
-      "json":      args.mqtt_json,
-      "ack":       args.mqtt_ack}
+      "ip":         args.mqtt_host,
+      "port":       args.mqtt_port,
+      "username":   args.mqtt_username,
+      "password":   args.mqtt_password,
+      "keepalive":  args.mqtt_keepalive,
+      "base_topic": args.mqtt_base_topic,
+      "raw":        args.mqtt_raw,
+      "hex":        args.mqtt_hex,
+      "json":       args.mqtt_json,
+      "ack":        args.mqtt_ack}
   else:
     mqtt_config = {}
 
