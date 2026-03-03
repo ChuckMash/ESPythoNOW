@@ -43,6 +43,7 @@ options:
     mqtt_username: ""
     mqtt_password: ""
     mqtt_keepalive: 60
+    mqtt_base_topic: "ESPythoNOW"
     mqtt_raw: false
     mqtt_hex: true
     mqtt_json: true
@@ -73,6 +74,7 @@ schema:
     mqtt_username: str?
     mqtt_password: password?
     mqtt_keepalive: int
+    mqtt_base_topic: str?
     mqtt_raw: bool
     mqtt_hex: bool
     mqtt_json: bool
