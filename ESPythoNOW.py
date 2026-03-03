@@ -225,13 +225,19 @@ class ESPythoNow:
     self.raw_packet_index              = self.esp_now_send_packet_raw.index(self.mac_as_bytes(self.local_mac)) # The raw packet index of start of addr1
     self.raw_packet_fc_index           = int.from_bytes(self.esp_now_send_packet_raw[2:4], 'little')           # The raw packet index of FC flags
 
-    # Create filter part for local mac
-    self_mac_filter = "" if self.accept_all else " and (wlan addr1 %s or wlan addr1 FF:FF:FF:FF:FF:FF)" % self.local_mac
+    # Create kernel level BPF (Berkeley Packet Filter) for effiecent filtering of received packets
+    if self.accept_broadcast:
+      # Filter for local MAC, and BROADCAST MAC
+      self_mac_filter = "" if self.accept_all else " and (wlan addr1 %s or wlan addr1 FF:FF:FF:FF:FF:FF)" % self.local_mac
 
-    # Create packet filter
+    else:
+      # Filter for just local MAC
+      self_mac_filter = "" if self.accept_all else " and (wlan addr1 %s)" % self.local_mac
+
     if self.encrypted:
       # Filter for all managment/action frames. Adds detection of encrypted ESP-NOW messages at the cost of downstream filtering
       self.filter = "((type 0 subtype 0xd0%s) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self_mac_filter, self.local_mac, self.local_mac)
+
     else:
       # Filter for all unencrypted ESP-NOW messages and ESP-NOW ACK
       self.filter = "((type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34%s) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self_mac_filter, self.local_mac, self.local_mac)
@@ -317,7 +323,7 @@ class ESPythoNow:
       self.delivery_confirmed = False
       self.delivery_event.clear()
 
-      # Send as v1.0 if message 250 bytes or less
+      # Send as v1.0 if message 250 bytes or less. Not strictly needed, could just as easily send as V2.
       if len(msg_) <= 250:
         plaintext_data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
 
@@ -893,16 +899,22 @@ def main():
       if from_mac in results:
         return
       results.append(from_mac)
-      decoded = data.decode()
-      packets_received = int(decoded.split(" ")[0])
-      packet_loss = 100 - (packets_received / espnow._speed_test_packets_sent * 100)
-      print(from_mac, "\t", decoded, "%.1f%% packet loss" % packet_loss)
-      print()
+      try:
+        decoded = data.decode()
+        packets_received = int(decoded.split(" ")[0])
+        packet_loss = 100 - (packets_received / espnow._speed_test_packets_sent * 100)
+        print(from_mac, "\t", decoded, "%.1f%% packet loss" % packet_loss)
+        print()
+      except Exception as e:
+        print(from_mac, to_mac, data)
+        #print(e)
 
-    speed_test(espnow, *st)                    # Run the test
-    espnow.esp_now_rx_callback = speed_test_cb # Callback to get results from remote device after the test
-    espnow.start()                             # Listen for a response
-    time.sleep(15)                             # Wait for a response
+    speed_test(espnow, *st)                        # Run the test
+    original_callback = espnow.esp_now_rx_callback # Stash existing callback
+    espnow.esp_now_rx_callback = speed_test_cb     # Callback to get results from remote device after the test
+    espnow.start()                                 # Listen for a response
+    time.sleep(15)                                 # Wait for a response
+    espnow.esp_now_rx_callback = original_callback # Restore previous callback
 
   espnow.prepare()
 
