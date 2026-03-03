@@ -73,6 +73,9 @@ configuration:
       mqtt_keepalive:
         name: MQTT Keepalive
         description: MQTT keepalive interval in seconds. Controls how often the client pings the broker to keep the connection alive.
+      mqtt_base_topic:
+        name: MQTT Topic
+        description: The topic that ESPythoNOW will use for subscribe/publish.
       mqtt_raw:
         name: Publish Raw Bytes
         description: Publish the raw bytes payload to MQTT.
