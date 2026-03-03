@@ -210,6 +210,16 @@ docker-compose logs -f espythonow
 ```
 
 
+---
+How to Install as Home Assistant Addon/App
+* Select Setttings, Apps, Install App
+* Select the 3 dot menu in the upper right corner and select Repositories
+* Add https://github.com/ChuckMash/ESPythoNOW
+* Wait a moment and refresh the page
+* Install ESPythoNOW - ESP-NOW to MQTT Bridge
+---
+
+
 
 ---
 NOTE about current state, subject to change or improvements
