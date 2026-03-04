@@ -10,6 +10,11 @@ arch:
   - armhf
   - i386
 
+ingress: true
+ingress_port: 8085
+panel_icon: mdi:wifi
+panel_title: ESPythoNOW
+
 apparmor: true
 host_network: true
 host_dbus: true
