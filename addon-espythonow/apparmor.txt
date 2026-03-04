@@ -1,6 +1,47 @@
 #include <tunables/global>
 
 profile espythonow flags=(attach_disconnected,mediate_deleted) {
-  deny /** rwklx,
-  deny network,
+  #include <abstractions/base>
+
+  # Shell entrypoint
+  /bin/bash                      ix,
+  /bin/sh                        ix,
+  /usr/bin/bash                  ix,
+  /usr/bin/sh                    ix,
+
+  # Python interpreter
+  /usr/bin/python3*              ix,
+  /usr/lib/python3**             r,
+  /usr/local/lib/python3**       r,
+
+  /app/**                        r,
+  /data/options.json             r,
+
+  # Network tools for interface setup
+  /usr/sbin/iw                   ix,
+  /usr/sbin/iwconfig             ix,
+  /usr/sbin/ifconfig             ix,
+  /usr/sbin/ip                   ix,
+  /usr/bin/nmcli                 ix,
+
+  # Proc and sys access
+  /proc/*/status                 r,
+  /proc/*/net/**                 r,
+  /sys/class/net/*/mtu           rw,
+  /sys/class/net/*/wireless/     r,
+
+  # Raw socket / packet capture (scapy needs this)
+  network raw,
+  network packet,
+
+  # Shared libraries
+  /lib/**                        r,
+  /lib64/**                      r,
+  /usr/lib/**                    r,
+
+  # Temp and runtime
+  /tmp/**                        rw,
+  /run/**                        rw,
+  /dev/null                      rw,
+
 }
