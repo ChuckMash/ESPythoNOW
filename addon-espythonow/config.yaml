@@ -1,6 +1,6 @@
 name: "ESPythoNOW"
 description: "ESP-NOW to MQTT bridge"
-version: "0.0.1"
+version: "0.0.2"
 slug: "espythonow"
 init: false
 arch:
