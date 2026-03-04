@@ -3,26 +3,25 @@
 profile espythonow flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
-  # Shell entrypoint
-  /bin/bash                      ix,
-  /bin/sh                        ix,
-  /usr/bin/bash                  ix,
-  /usr/bin/sh                    ix,
 
-  # Python interpreter
-  /usr/bin/python3*              ix,
-  /usr/lib/python3**             r,
-  /usr/local/lib/python3**       r,
+  network raw,
+  network packet,
 
   /app/**                        r,
   /data/options.json             r,
 
-  # Network tools for interface setup
+  /bin/bash                      ix,
+  /usr/local/bin/python3*        ix,
   /usr/sbin/iw                   ix,
   /usr/sbin/iwconfig             ix,
   /usr/sbin/ifconfig             ix,
   /usr/sbin/ip                   ix,
   /usr/bin/nmcli                 ix,
+
+  /usr/lib/python3**             r,
+  /usr/local/lib/python3**       r,
+
+
 
   # Proc and sys access
   /proc/*/status                 r,
@@ -30,9 +29,7 @@ profile espythonow flags=(attach_disconnected,mediate_deleted) {
   /sys/class/net/*/mtu           rw,
   /sys/class/net/*/wireless/     r,
 
-  # Raw socket / packet capture (scapy needs this)
-  network raw,
-  network packet,
+
 
   # Shared libraries
   /lib/**                        r,
