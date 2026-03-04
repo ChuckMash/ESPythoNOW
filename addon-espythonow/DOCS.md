@@ -34,4 +34,5 @@ Check Logs again.
 MQTT
 ---
 * Received messages are published to `/ESPythoNOW/*SENDERMAC*/*RECEIVERMAC*`
-* To send message, publish message to /ESPythoNOW/send/*RECEIVERMAC*
+* To send message, publish message to `/ESPythoNOW/send/*RECEIVERMAC*`
+
