@@ -212,6 +212,7 @@ docker-compose logs -f espythonow
 
 ---
 How to Install as Home Assistant Addon/App
+---
 * Select Setttings, Apps, Install App
 * Select the 3 dot menu in the upper right corner and select Repositories
 * Add https://github.com/ChuckMash/ESPythoNOW
