@@ -31,11 +31,10 @@ services:
       MQTT_USERNAME:    ""                  #   MQTT username for authentication
       MQTT_PASSWORD:    ""                  #   MQTT password for authentication
       MQTT_KEEPALIVE:   "60"                #   MQTT keepalive
+      MQTT_BASE_TOPIC:  ""                  #   MQTT base topic for publish/subscribe
       MQTT_RAW:         "false"             #   Publish raw bytes to MQTT
       MQTT_HEX:         "true"              #   Publish hex-encoded data to MQTT
       MQTT_JSON:        "true"              #   Publish JSON-formatted data to MQTT, if decoder exists
       MQTT_ACK:         "false"             #   Publish ACK (delivery confirmation) to confirm message delivery on send
 
                                             # * -> Functionality and performance may be dependent on driver/chipset/kernel/other
-
-
