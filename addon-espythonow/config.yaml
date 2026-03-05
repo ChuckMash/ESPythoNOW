@@ -1,6 +1,6 @@
 name: "ESPythoNOW"
 description: "ESP-NOW to MQTT bridge"
-version: "0.0.1"
+version: "0.0.2"
 slug: "espythonow"
 init: false
 arch:
@@ -9,11 +9,6 @@ arch:
   - armv7
   - armhf
   - i386
-
-ingress: true
-ingress_port: 8085
-panel_icon: mdi:wifi
-panel_title: ESPythoNOW
 
 apparmor: true
 host_network: true
