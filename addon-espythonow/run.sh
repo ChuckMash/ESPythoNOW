@@ -4,7 +4,6 @@ set -euo pipefail
 if [ -f /data/options.json ]; then
     echo "[ESPythoNOW] Home Assistant mode"
     exec python3 -u /app/ESPythoNOW.py --config=/data/options.json --homeassistant=true
-    
 else
     echo "[ESPythoNOW] Docker mode"
     exec python3 -u /app/ESPythoNOW.py \
@@ -28,8 +27,11 @@ else
       --mqtt_username="${MQTT_USERNAME}" \
       --mqtt_password="${MQTT_PASSWORD}" \
       --mqtt_keepalive="${MQTT_KEEPALIVE}" \
+      --mqtt_base_topic="${MQTT_BASE_TOPIC}" \
       --mqtt_raw="${MQTT_RAW}" \
       --mqtt_hex="${MQTT_HEX}" \
       --mqtt_json="${MQTT_JSON}" \
       --mqtt_ack="${MQTT_ACK}"
 fi
+
+
