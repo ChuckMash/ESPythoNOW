@@ -1,6 +1,9 @@
 #include <tunables/global>
 
 profile espythonow flags=(attach_disconnected,mediate_deleted,complain) {
+  #include <abstractions/base>
   deny /** rwklx,
   deny network,
 }
+
+
