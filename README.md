@@ -194,7 +194,7 @@ How to use with Docker Container
 ```
 
 # Download the docker files from GitHub
-wget -O Dockerfile "https://raw.githubusercontent.com/ChuckMash/ESPythoNOW/refs/heads/main/Dockerfile"
+wget -O Dockerfile "https://raw.githubusercontent.com/ChuckMash/ESPythoNOW/refs/heads/main/addon-espythonow/Dockerfile"
 wget -O docker-compose.yml "https://raw.githubusercontent.com/ChuckMash/ESPythoNOW/refs/heads/main/docker-compose.yml"
 
 # Edit docker-compose.yml to customize interface, send/receive settings, MQTT information, etc.
