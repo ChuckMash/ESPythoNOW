@@ -4,7 +4,9 @@ WORKDIR /app
 
 ADD https://api.github.com/repos/ChuckMash/ESPythoNOW/commits/main_homeassistant /dev/null
 RUN git clone --depth 1 --branch main_homeassistant https://github.com/ChuckMash/ESPythoNOW.git /tmp/repo && \
-    cp /tmp/repo/ESPythoNOW.py /tmp/repo/requirements.txt /app/ && \
+    cp /tmp/repo/ESPythoNOW.py /app/ && \
+    cp /tmp/repo/requirements.txt /app/ && \
+    cp /tmp/repo/addon-espythonow/run.sh /app/ && \
     rm -rf /tmp/repo
 
 FROM python:3.11-alpine
@@ -26,8 +28,5 @@ COPY --from=build /app /app
 RUN pip install --no-cache-dir -r requirements.txt && \
     rm /app/requirements.txt
 
-COPY run.sh /app/run.sh
-
 RUN chmod +x /app/run.sh
-
 CMD ["/app/run.sh"]
