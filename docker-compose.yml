@@ -9,24 +9,32 @@ services:
     cap_add:
       - NET_RAW
       - NET_ADMIN
-    environment:
-      - INTERFACE=wlan1
-      - CHANNEL=8
-      - SET_INTERFACE=true
-      - ACCEPT_BROADCAST=true
-      - ACCEPT_ALL=true
-      - ACCEPT_ACK=false
-      #- LMK=a3o4csuv2bpvr0wu # Examples, do not use
-      #- PMK=0u4hgz7pgct3gnv8 # Examples, do not use
-      - MQTT_HOST=
-      - MQTT_PORT=1883
-      - MQTT_USERNAME=
-      - MQTT_PASSWORD=
-      - MQTT_KEEPALIVE=60
-      - MQTT_RAW=true
-      - MQTT_HEX=true
-      - MQTT_JSON=true
-      - MQTT_ACK=false
-    stdin_open: true
     tty: true
-    command: bash -c "python3 -u /app/ESPythoNOW.py --interface=$$INTERFACE --channel=$$CHANNEL --set_interface=$$SET_INTERFACE --accept_broadcast=$$ACCEPT_BROADCAST --accept_all=$$ACCEPT_ALL --accept_ack=$$ACCEPT_ACK -lmk=$$LMK -pmk=$$PMK --mqtt_host=$$MQTT_HOST --mqtt_port=$$MQTT_PORT --mqtt_username=$$MQTT_USERNAME --mqtt_password=$$MQTT_PASSWORD --mqtt_keepalive=$$MQTT_KEEPALIVE --mqtt_raw=$$MQTT_RAW --mqtt_hex=$$MQTT_HEX --mqtt_json=$$MQTT_JSON --mqtt_ack=$$MQTT_ACK"
+    environment:
+      INTERFACE:        "wlan1"             #   Dedicated wireless interface (e.g., wlan1)
+      CHANNEL:          "8"                 #   Wireless channel to use
+      SET_INTERFACE:    "true"              # * Set monitor mode and channel
+      MTU:              "0"                 # * Set the MTU for the interface
+      RATE:             "0"                 # * Set the PHY rate for the interface
+      SEND_RAW:         "false"             # * Send with raw packet, can be faster and unstable
+      NO_WAIT:          "false"             # * Don't wait for confirmation from receiver when sending. Speeds up UNICAST sending at cost of no L2 retry
+      RETRY_LIMIT:      "0"                 # * Try and set the L2 retry limit
+      REPEAT:           "0"                 # * Force packet retry in send N times
+      ACCEPT_BROADCAST: "true"              #   Accept broadcast ESP-NOW messages
+      ACCEPT_ALL:       "true"              #   Accept all ESP-NOW messages regardless of intended destination
+      ACCEPT_ACK:       "false"             #   Execute callback on ACK confirmation
+      BLOCK_ON_SEND:    "false"             #   Block on sending data, wait for ACK from receiving device
+      # PRIMARY_KEY:    "0u4hgz7pgct3gnv8"  #   Primary master key for encrypted ESP-NOW (16 chars), CHANGE EXAMPLE KEY!
+      # LOCAL_KEY:      "a3o4csuv2bpvr0wu"  #   Local master key for encrypted ESP-NOW (16 chars), CHANGE EXAMPLE KEY!
+      MQTT_HOST:        ""                  #   MQTT broker IP address
+      MQTT_PORT:        "1883"              #   MQTT broker port
+      MQTT_USERNAME:    ""                  #   MQTT username for authentication
+      MQTT_PASSWORD:    ""                  #   MQTT password for authentication
+      MQTT_KEEPALIVE:   "60"                #   MQTT keepalive
+      MQTT_BASE_TOPIC:  ""                  #   MQTT base topic for publish/subscribe
+      MQTT_RAW:         "false"             #   Publish raw bytes to MQTT
+      MQTT_HEX:         "true"              #   Publish hex-encoded data to MQTT
+      MQTT_JSON:        "true"              #   Publish JSON-formatted data to MQTT, if decoder exists
+      MQTT_ACK:         "false"             #   Publish ACK (delivery confirmation) to confirm message delivery on send
+
+                                            # * -> Functionality and performance may be dependent on driver/chipset/kernel/other

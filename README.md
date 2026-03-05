@@ -5,7 +5,9 @@ Linux/Python ESP-NOW library.
 * Monitor all ESP-NOW messages
 * [Stream high quality audio to ESP device](https://github.com/ChuckMash/ESPythoNOW/tree/main/examples/ESPaudioNOW)
 * Supports ESP-NOW v1.0 and v2.0
-  * v2.0 supports over 1,400 bytes per message!
+  * ESP-NOW on ESP32 supports messages up to 1,470 bytes.
+  * ESPythoNOW supports messages up to 2,089 bytes!
+    
 * Supports sending and receiving encrypted ESP-NOW messages!
 * MQTT Subscribe and publish, send and receive ESP-NOW  
 *  **This is a work in progress**
@@ -208,11 +210,22 @@ docker-compose logs -f espythonow
 ```
 
 
+---
+How to Install as Home Assistant Addon/App
+---
+* Select Setttings, Apps, Install App
+* Select the 3 dot menu in the upper right corner and select Repositories
+* Add https://github.com/ChuckMash/ESPythoNOW
+* Wait a moment and refresh the page
+* Install ESPythoNOW - ESP-NOW to MQTT Bridge
+---
+
+
 
 ---
 NOTE about current state, subject to change or improvements
 ---
 * Interface must support monitor mode
 * Any "local" MAC address is supported
-  * Only actual local MAC will provide delivery confirmation
+  * Only actual local hardware MAC will provide delivery confirmation
 *  **This is a work in progress**

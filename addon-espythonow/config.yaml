@@ -1,0 +1,81 @@
+name: "ESPythoNOW"
+description: "ESP-NOW to MQTT bridge"
+version: "0.0.2"
+slug: "espythonow"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armv7
+  - armhf
+  - i386
+
+apparmor: true
+host_network: true
+host_dbus: true
+privileged:
+  - NET_ADMIN
+  - NET_RAW
+services:
+  - mqtt:want
+options:
+  interface: ""
+  channel: 8
+  advanced:
+    set_interface: true
+    mtu: 0
+    rate: 0
+    send_raw: false
+    no_wait: false
+    retry_limit: 0
+    repeat: 0
+    accept_broadcast: true
+    accept_all: false
+    accept_ack: false
+    block_on_send: false
+  encryption:
+    primary_key: ""
+    local_key: ""
+  mqtt:
+    mqtt_ha: true
+    mqtt_host: ""
+    mqtt_port: 1883
+    mqtt_username: ""
+    mqtt_password: ""
+    mqtt_keepalive: 60
+    mqtt_base_topic: "ESPythoNOW"
+    mqtt_raw: false
+    mqtt_hex: true
+    mqtt_json: true
+    mqtt_ack: false
+
+schema:
+  interface: str
+  channel: int
+  advanced:
+    set_interface: bool
+    mtu: int
+    rate: int
+    send_raw: bool
+    no_wait: bool
+    retry_limit: int
+    repeat: int
+    accept_broadcast: bool
+    accept_all: bool
+    accept_ack: bool
+    block_on_send: bool
+  encryption:
+    primary_key: password?
+    local_key: password?
+  mqtt:
+    mqtt_ha: bool
+    mqtt_host: str?
+    mqtt_port: int
+    mqtt_username: str?
+    mqtt_password: password?
+    mqtt_keepalive: int
+    mqtt_base_topic: str?
+    mqtt_raw: bool
+    mqtt_hex: bool
+    mqtt_json: bool
+    mqtt_ack: bool
