@@ -26,7 +26,7 @@ except:
 
 class ESPythoNow:
 
-  def __init__(self, interface, set_interface=True, mtu=1500, rate=0, channel=0, mac="", callback=None, send_raw=False, no_wait=False, retry_limit=0, repeat=0, accept_broadcast=True, accept_all=False, accept_ack=False, block_on_send=False, pmk="", lmk="", decoders={}, mqtt_config={}):
+  def __init__(self, interface, set_interface=True, mtu=1500, rate=0, channel=0, mac="", callback=None, send_raw=False, no_wait=False, retry_limit=0, repeat=0, accept_broadcast=True, accept_all=False, accept_ack=False, block_on_send=False, pmk="", lmk="", decoders={}, mqtt_config={}, organization="18FE34"):
 
     if set_interface:
       self.prep_interface(interface, channel, mtu=mtu, retry_limit=retry_limit)
@@ -64,6 +64,10 @@ class ESPythoNow:
     self.block_on_broadcast  = False                                     # Enable block on BROADCAST send, disabled by default. Some ESP-NOW versions will send ACK when receiving BROADCAST
     self.prepared            = False                                     # Required tasks have been completed, or not
     self.use_mqtt            = False                                     # MQTT will be used
+
+    self.OUI_                = organization                              # Replace the default ESP-NOW organization ID, 18FE34
+    self.OUI                 = bytes.fromhex(self.OUI_)                  # b"\x18\xfe\x34"
+    self.last_message_OUI    = b"\xFF\xFF\xFF"                           # Stash of las messages OUI
 
 
 
@@ -240,7 +244,7 @@ class ESPythoNow:
 
     else:
       # Filter for all unencrypted ESP-NOW messages and ESP-NOW ACK
-      self.filter = "((type 0 subtype 0xd0 and wlan[24:4]=0x7f18fe34%s) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % (self_mac_filter, self.local_mac, self.local_mac)
+      self.filter = "((type 0 subtype 0xd0 and wlan[34:4]=0x%s04%s) or (type 4 subtype 0xd0 and wlan addr1 %s)) and wlan src ! %s" % ( self.OUI_, self_mac_filter, self.local_mac, self.local_mac )
 
     # Add history deque to decoders as needed
     for k,dec in self.decoders.items():
@@ -330,11 +334,11 @@ class ESPythoNow:
 
       # Send as v1.0 if message 250 bytes or less. Not strictly needed, could just as easily send as V2.
       if len(msg_) <= 250:
-        plaintext_data = b"\x7f\x18\xfe\x34%s\xDD%s\x18\xfe\x34\x04\x01%s" % (random.randbytes(4), (5+len(msg_)).to_bytes(1, 'big'), msg_)
+        plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b"\xDD" + bytes([5 + len(msg_)]) + self.OUI +b"\x04\x01" + msg_
 
       # Send as v2.0 packet, messages up to 1427 bytes (1500 MTU), or up to 2089 bytes (2304 MTU)
       else:
-        plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + b"\x18\xfe\x34\x04" + (b"\x12" if i+250 < len(msg_) else b"\x02") + msg_[i:i+250] for i in range(0, len(msg_), 250)])
+        plaintext_data = b"\x7f\x18\xfe\x34" + random.randbytes(4) + b''.join([b"\xDD" + (5+len(msg_[i:i+250])).to_bytes(1, 'big') + self.OUI + b"\x04" + (b"\x12" if i+250 < len(msg_) else b"\x02") + msg_[i:i+250] for i in range(0, len(msg_), 250)])
 
       # Send encrypted ESP-NOW message
       if self.encrypted:
@@ -552,6 +556,13 @@ class ESPythoNow:
         return
       else:
         self.recent_rand_values.append(data[4:8])
+
+      # Stash the most recent messages organization id
+      self.last_message_OUI = data[10:13]
+
+      # If custom Organization ID set, and does not match, discard message
+      if self.OUI != b"\x18\xfe\x34" and self.OUI != self.last_message_OUI:
+        return
 
       # Parse message from ESP-NOW packet, v1.0 and v2.0
       msg_raw = b''.join([data[15:][i:i + 250] for i in range(0, len(data[15:]), 257)])
@@ -782,6 +793,8 @@ def main():
   parser.add_argument('-ha',     '--homeassistant',    required=False, default=False, type=s2b,   help='Is home assistant addon')
   parser.add_argument('-mqha',   '--mqtt_ha',          required=False, default=True,  type=s2b,   help='Connect to home assistant mqtt server internally')
 
+  parser.add_argument('-oui',   '--organization',      required=False, default="18FE34",          help='Override the default ESP-NOW organization ID. (18FE34)')
+
   args = parser.parse_args()
 
 
@@ -896,7 +909,8 @@ def main():
     lmk              = args.local_key,
     callback         = generic_callback,
     decoders         = decoders,
-    mqtt_config      = mqtt_config)
+    mqtt_config      = mqtt_config,
+    organization     = args.organization)
 
   espnow.add_signature("wizmote", wizmote_callback, data="dict")
   espnow.add_signature("wiz_motion", wiz_motion_callback, data="dict")
