@@ -33,6 +33,7 @@ options:
     accept_all: false
     accept_ack: false
     block_on_send: false
+    organization: "18FE34"
   encryption:
     primary_key: ""
     local_key: ""
@@ -64,6 +65,7 @@ schema:
     accept_all: bool
     accept_ack: bool
     block_on_send: bool
+    organization: str?
   encryption:
     primary_key: password?
     local_key: password?
