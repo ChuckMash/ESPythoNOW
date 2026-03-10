@@ -64,10 +64,13 @@ class ESPythoNow:
     self.block_on_broadcast  = False                                     # Enable block on BROADCAST send, disabled by default. Some ESP-NOW versions will send ACK when receiving BROADCAST
     self.prepared            = False                                     # Required tasks have been completed, or not
     self.use_mqtt            = False                                     # MQTT will be used
-
-    self.OUI_                = organization                              # Replace the default ESP-NOW organization ID, 18FE34
-    self.OUI                 = bytes.fromhex(self.OUI_)                  # b"\x18\xfe\x34"
     self.last_message_OUI    = b"\xFF\xFF\xFF"                           # Stash of las messages OUI
+    try:
+      self.OUI_              = organization                              # Replace the default ESP-NOW organization ID, 18FE34
+      self.OUI               = bytes.fromhex(self.OUI_)[0:3]             # b"\x18\xfe\x34"
+    except:
+      self.OUI_              = "18fe34"                                  # Set to default if needed
+      self.OUI               = bytes.fromhex(self.OUI_)
 
 
 
