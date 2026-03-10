@@ -41,7 +41,10 @@ configuration:
       block_on_send:
         name: Block on Send
         description: Block and wait for ACK from the receiving device before continuing after a send operation.
-        
+      organization:
+        name: Organization
+        description: The 3 byte OUI. Default is 18FE34
+
   encryption:
     name: Encryption Options
     fields:
@@ -51,7 +54,7 @@ configuration:
       local_key:
         name: Local Master Key
         description: 16-character local master key for encrypted ESP-NOW.
-        
+
   mqtt:
     name: MQTT Options
     fields:
