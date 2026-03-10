@@ -1,5 +1,5 @@
 FROM python:3.11-alpine AS build
-RUN apk add --no-cache gcc musl-dev libpcap-dev git linux-headers
+RUN apk add gcc musl-dev libpcap-dev git linux-headers
 WORKDIR /app
 
 ADD https://api.github.com/repos/ChuckMash/ESPythoNOW/commits/main /dev/null
