@@ -31,7 +31,6 @@ else
       --mqtt_raw="${MQTT_RAW}" \
       --mqtt_hex="${MQTT_HEX}" \
       --mqtt_json="${MQTT_JSON}" \
-      --mqtt_ack="${MQTT_ACK}"
+      --mqtt_ack="${MQTT_ACK}" \
+      --organization="${ORGANIZATION}"
 fi
-
-
