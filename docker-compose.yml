@@ -36,5 +36,5 @@ services:
       MQTT_HEX:         "true"              #   Publish hex-encoded data to MQTT
       MQTT_JSON:        "true"              #   Publish JSON-formatted data to MQTT, if decoder exists
       MQTT_ACK:         "false"             #   Publish ACK (delivery confirmation) to confirm message delivery on send
-
+      ORGANIZATION:     "18FE34"            #   Set the ESP-NOW OUI, default is 18fe34
                                             # * -> Functionality and performance may be dependent on driver/chipset/kernel/other
