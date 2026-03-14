@@ -1,9 +1,10 @@
 
 ---
+* zonet zew2590
 * Ralink Technology, Corp. RT2870/RT3070 Wireless Adapter
 * driver=rt2800usb driverversion=6.5.0-35-generic firmware=0.36
 * 4 inch ducky antenna
-* 0bda:8153
+* 148f:3070
 * Paired with ESP32 D1 Mini
 * Lab conditions. ~ 6 inches
 
