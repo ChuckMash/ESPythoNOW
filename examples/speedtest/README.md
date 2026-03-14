@@ -7,7 +7,7 @@
 * Paired with ESP32 D1 Mini
 * Lab conditions. ~ 6 inches
 
-| mac | rate_mbps | send_raw | no_wait | retry_limit | repeat | duration_s | mtu | pkt_size | packets_sent | packets_received | packet_loss_pct | min_mbps | avg_mbps | max_mbps | status | attempts |
+| mac | phy | raw | nowait | retrylimit | repeat | time | mtu | pkt_size | packets_sent | packets_received | packet_loss_pct | min_mbps | avg_mbps | max_mbps | status | attempts |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | BROADCAST | 1 | FALSE | FALSE | 0 | 0 | 10 | 1500 | 1 | 3792 | 3792 | 0 | 0.0026 | 0.003 | 0.0036 | ok | 1 |
 | UNICAST | 1 | FALSE | FALSE | 0 | 0 | 10 | 1500 | 1 | 495 | 495 | 0 | 0.0002 | 0.0003 | 0.0006 | ok | 1 |
