@@ -1,11 +1,11 @@
 
 ---
+* ESPythoNOW -> ESP32 D1 MINI
 * zonet zew2590
 * Ralink Technology, Corp. RT2870/RT3070 Wireless Adapter
 * driver=rt2800usb driverversion=6.5.0-35-generic firmware=0.36
 * 4 inch ducky antenna
 * 148f:3070
-* Paired with ESP32 D1 Mini
 * Lab conditions. ~ 6 inches
 
 |    | phy | raw | nowait | ret_limit | repeat | time | mtu | size | sent | received | loss_% | min_mbps | avg_mbps | max_mbps | status | attempts |
@@ -303,13 +303,13 @@
 
 
 ---
+* ESPythoNOW -> ESP32 D1 MINI
 * Ralink Technology, Corp. MT7601U Wireless Adapter
 * driver=mt7601u driverversion=6.5.0-35-generic firmware=N/A 
 * Internal Antenna
 * 148f:7601 
-* Paired with ESP32 D1 Mini
 * Lab conditions. ~ 6 inches
-* 
+
 | mac | phy | raw | nowait | ret_limit | repeat | time | mtu | size | sent | received | loss_% | min_mbps | avg_mbps | max_mbps | status | attempts |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | BRO | 1 | N | N | 0 | 0 | 10 | 1500 | 1 | 3664 | 3661 | 0.1 | 0.0027 | 0.0029 | 0.0031 | ok | 1 |
@@ -603,11 +603,11 @@
 
 
 ---
+* ESPythoNOW -> ESP32 D1 MINI
 * Realtek Semiconductor Corp. RTL88x2bu AC1200 Techkey
 * driver=rtw_8822bu driverversion=6.5.0-35-generic 
 * Internal Antenna
 * 0bda:b812 
-* Paired with ESP32 D1 Mini
 * Lab conditions. ~ 6 inches
 * Driver/Hardware bug/failure. All sent packets send full retry packets. Serious performance hit
 
@@ -905,12 +905,12 @@
 
 
 ---
+* ESPythoNOW -> ESP32 D1 MINI
 * alfa awus036h
 * Realtek Semiconductor Corp. RTL8187 Wireless Adapter
 * driver=rtl8187 driverversion=6.5.0-35-generic
 * 4 inch rubber ducky Antenna
 * 0bda:8187
-* Paired with ESP32 D1 Mini
 * Lab conditions. ~ 6 inches
 * extremely high fail rate with 54 phy rate
 
